@@ -102,6 +102,37 @@ async function seed() {
     }
     console.log(`✅ ${messages.length} mensajes internos creados`);
 
+    // 6. Aviso de cobranza de ejemplo (documento de referencia F-32, junio 2026)
+    await client.query(
+      `INSERT INTO collection_notices (
+         user_id, page_number, doc_type, main_concept, billing_month, condo_name,
+         property_type, property_code, owner_name, owner_phone,
+         current_reading_date, current_reading, previous_reading_date, previous_reading,
+         reading_diff_m3, tariff_note, tariff_fixed, tariff_included_m3, tariff_rate,
+         prev_debt, prev_payment1, prev_payment2, prev_balance,
+         meter_charge, meter_payment, meter_balance,
+         pump_charge, pump_payment, pump_balance, pump_note,
+         water_consumption, single_payment, month_debt, water_total,
+         total_water_debt, maint_debt_next_month,
+         payment_deadline, late_fee_start, due_notice, discrepancies,
+         whatsapp_sent, created_at, updated_at
+       ) VALUES (
+         $1,35,'Aviso de Cobranza','Agua','Junio 2026','CONDOMINIO PUERTA DE HIERRO',
+         'CHALET','F-32','SR. EDGAR BERCOVAL VARGAS-DELIMIRA PACH',NULL,
+         '05/06/2026',1665,'05/05/2026',1642,
+         23,'M3 = Cargo fijo S/ 10.50 hasta 3 m3, S/ 6.50 Soles hasta 50 m3, S/ 6.50 es la diferencia de 50 m3 a más.',10.50,3,6.50,
+         31.50,31.50,0.00,0.00,
+         0.00,0.00,0.00,
+         60.00,60.00,0.00,'Este mes se cobra Cuota Mant.Bomba y Limpieza Cisterna',
+         128.80,0.00,128.80,128.80,
+         128.80,150.00,
+         '22/07/2026','25/07/2026','Último día de pago 22/07/26 a partir de 25/07/26 se cobrará mora se efectúe el corte o no. Quienes tienen deuda de mantenimiento deben pagar mínimo 1 cuota atrasada y el mes actual.','[]',
+         false, NOW(), NOW()
+       )`,
+      [tenantId]
+    );
+    console.log('✅ 1 aviso de cobranza de ejemplo creado (F-32, junio 2026)');
+
     await client.query('COMMIT');
 
     console.log('\n========================================');
@@ -116,6 +147,7 @@ async function seed() {
     console.log('   - 4 esquelas de pago');
     console.log('   - 7 transacciones (ingresos y egresos)');
     console.log('   - 4 mensajes internos');
+    console.log('   - 1 aviso de cobranza (F-32, junio 2026)');
     console.log('========================================\n');
 
   } catch (error) {

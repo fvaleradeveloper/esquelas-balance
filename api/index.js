@@ -1,6 +1,6 @@
 // Entry point para Vercel Serverless Functions
-// Exporta la app Express para que Vercel la sirve
+// Exporta la app Express para que Vercel la sirva
 
-const app = require('../server/app');
+const { app } = require('../server/app');
 
 module.exports = app;

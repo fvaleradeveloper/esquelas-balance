@@ -1,18 +1,14 @@
 {
   "version": 2,
   "builds": [
-    { "src": "api/*.js", "use": "@vercel/node" }
+    {
+      "src": "api/*.js",
+      "use": "@vercel/node",
+      "config": { "includeFiles": ["public/**", "server/**"] }
+    }
   ],
   "routes": [
-    { "src": "/api/(.*)", "dest": "api/$1" },
+    { "src": "/api/(.*)", "dest": "api/index.js" },
     { "src": "/(.*)", "dest": "api/index.js" }
-  ],
-  "env": {
-    "JWT_SECRET": "@jwt_secret",
-    "ADMIN_EMAIL": "@admin_email",
-    "ADMIN_PASSWORD": "@admin_password",
-    "CORS_ORIGINS": "@cors_origins",
-    "DATABASE_URL": "@database_url",
-    "NODE_ENV": "production"
-  }
+  ]
 }

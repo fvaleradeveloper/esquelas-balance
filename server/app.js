@@ -114,6 +114,12 @@ app.use('/api/receipts', require('./routes/receipts'));
 app.use('/api/transactions', require('./routes/transactions'));
 app.use('/api/whatsapp', require('./routes/whatsapp'));
 app.use('/api/messages', require('./routes/messages'));
+app.use('/api/notices', require('./routes/notices'));
+
+// Health check (para verificar el despliegue en vivo)
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'ok', app: 'esquelas-balance', version: '1.0.0', time: new Date().toISOString() });
+});
 
 // Ruta raíz - servir landing page
 app.get('/', (req, res) => {

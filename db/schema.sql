@@ -64,7 +64,56 @@ CREATE TABLE IF NOT EXISTS internal_messages (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+-- Tabla de avisos de cobranza (plantilla: agua + mantenimiento, una pagina)
+CREATE TABLE IF NOT EXISTS collection_notices (
+  id SERIAL PRIMARY KEY,
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  page_number INTEGER,
+  doc_type VARCHAR(50) NOT NULL DEFAULT 'Aviso de Cobranza',
+  main_concept VARCHAR(50) NOT NULL DEFAULT 'Agua',
+  billing_month VARCHAR(50) NOT NULL,
+  condo_name VARCHAR(150) NOT NULL,
+  property_type VARCHAR(50) NOT NULL DEFAULT 'CHALET',
+  property_code VARCHAR(50) NOT NULL,
+  owner_name VARCHAR(200) NOT NULL,
+  owner_phone VARCHAR(50),
+  current_reading_date VARCHAR(20),
+  current_reading NUMERIC(12,0),
+  previous_reading_date VARCHAR(20),
+  previous_reading NUMERIC(12,0),
+  reading_diff_m3 NUMERIC(12,2),
+  tariff_note TEXT,
+  tariff_fixed NUMERIC(12,2),
+  tariff_included_m3 NUMERIC(12,2),
+  tariff_rate NUMERIC(12,2),
+  prev_debt NUMERIC(12,2) NOT NULL DEFAULT 0,
+  prev_payment1 NUMERIC(12,2) NOT NULL DEFAULT 0,
+  prev_payment2 NUMERIC(12,2) NOT NULL DEFAULT 0,
+  prev_balance NUMERIC(12,2) NOT NULL DEFAULT 0,
+  meter_charge NUMERIC(12,2) NOT NULL DEFAULT 0,
+  meter_payment NUMERIC(12,2) NOT NULL DEFAULT 0,
+  meter_balance NUMERIC(12,2) NOT NULL DEFAULT 0,
+  pump_charge NUMERIC(12,2) NOT NULL DEFAULT 0,
+  pump_payment NUMERIC(12,2) NOT NULL DEFAULT 0,
+  pump_balance NUMERIC(12,2) NOT NULL DEFAULT 0,
+  pump_note TEXT,
+  water_consumption NUMERIC(12,2) NOT NULL DEFAULT 0,
+  single_payment NUMERIC(12,2) NOT NULL DEFAULT 0,
+  month_debt NUMERIC(12,2) NOT NULL DEFAULT 0,
+  water_total NUMERIC(12,2) NOT NULL DEFAULT 0,
+  total_water_debt NUMERIC(12,2) NOT NULL DEFAULT 0,
+  maint_debt_next_month NUMERIC(12,2) NOT NULL DEFAULT 0,
+  payment_deadline VARCHAR(20),
+  late_fee_start VARCHAR(20),
+  due_notice TEXT,
+  discrepancies JSONB,
+  whatsapp_sent BOOLEAN NOT NULL DEFAULT FALSE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
 -- Índices para rendimiento
+CREATE INDEX IF NOT EXISTS idx_collection_notices_user_id ON collection_notices(user_id);
 CREATE INDEX IF NOT EXISTS idx_receipts_user_id ON receipts(user_id);
 CREATE INDEX IF NOT EXISTS idx_receipts_receipt_number ON receipts(receipt_number);
 CREATE INDEX IF NOT EXISTS idx_transactions_user_id ON transactions(user_id);
