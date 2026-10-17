@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ingresos y Egresos - Esquelas-Balance</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <div class="main-layout">
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-brand">🧾 Esquelas-Balance</div>
+      <ul class="sidebar-nav">
+        <li><a href="dashboard.html"><span>📊</span> Dashboard</a></li>
+        <li><a href="receipts.html"><span>🧾</span> Esquelas de Pago</a></li>
+        <li><a href="transactions.html" class="active"><span>💰</span> Ingresos & Egresos</a></li>
+        <li><a href="messages.html"><span>💬</span> Mensajes / WhatsApp</a></li>
+        <li style="margin-top:30px;"><a href="login.html" id="logoutLink" style="color:var(--color-danger);"><span>🚪</span> Cerrar Sesión</a></li>
+      </ul>
+    </aside>
+
+    <div class="main-content">
+      <div class="page-header">
+        <h1>💰 Ingresos & Egresos</h1>
+        <p>Registro financiero completo. Controle el balance de sus entradas y salidas.</p>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card success">
+          <div class="stat-icon">💰</div>
+          <div>
+            <div class="stat-value" id="statIncome">S/ 0.00</div>
+            <div class="stat-label">Ingresos Totales</div>
+          </div>
+        </div>
+        <div class="stat-card danger">
+          <div class="stat-icon">📤</div>
+          <div>
+            <div class="stat-value" id="statExpense">S/ 0.00</div>
+            <div class="stat-label">Egresos Totales</div>
+          </div>
+        </div>
+        <div class="stat-card warning">
+          <div class="stat-icon">📊</div>
+          <div>
+            <div class="stat-value" id="statBalance">S/ 0.00</div>
+            <div class="stat-label">Balance Neto</div>
+          </div>
+        </div>
+      </div>
+
+      <div id="alert-container"></div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Historial de Transacciones</div>
+          <div style="display:flex; gap:10px; flex-wrap:wrap;">
+            <button class="btn btn-success btn-sm" onclick="openTransactionModal('income')">+ Ingreso</button>
+            <button class="btn btn-outline btn-sm" onclick="openTransactionModal('expense')">+ Egreso</button>
+          </div>
+        </div>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Fecha</th>
+                <th>Descripción</th>
+                <th>Tipo</th>
+                <th>Categoría</th>
+                <th>Monto</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="transactionsTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Nueva Transacción -->
+  <div class="modal" id="transactionModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="modal-title" id="txModalTitle">Nuevo Ingreso</div>
+        <button class="close-modal" onclick="closeModal('transactionModal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div id="txAlert"></div>
+        <form id="transactionForm">
+          <input type="hidden" id="txType" value="income">
+          <div class="form-group">
+            <label class="form-label">Descripción</label>
+            <input type="text" id="txDescription" class="form-input" placeholder="Pago de alquiler" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Monto (S/)</label>
+            <input type="number" id="txAmount" class="form-input" step="0.01" min="0" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Categoría</label>
+            <input type="text" id="txCategory" class="form-input" placeholder="Alquiler" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Fecha</label>
+            <input type="date" id="txDate" class="form-input" required>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" onclick="closeModal('transactionModal')">Cancelar</button>
+        <button type="button" class="btn btn-primary" onclick="saveTransaction()">Guardar</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/app.js"></script>
+  <script src="../js/transactions.js"></script>
+  <script>
+    const token = getToken();
+    if (!token) window.location.href = 'login.html';
+
+    document.getElementById('logoutLink').addEventListener('click', (e) => {
+      e.preventDefault();
+      logout();
+    });
+
+    function closeModal(modalId) {
+      document.getElementById(modalId).classList.remove('show');
+    }
+
+    function openTransactionModal(type) {
+      document.getElementById('txType').value = type;
+      document.getElementById('txModalTitle').textContent = type === 'income' ? 'Nuevo Ingreso' : 'Nuevo Egreso';
+      document.getElementById('transactionForm').reset();
+      document.getElementById('txAlert').innerHTML = '';
+      document.getElementById('txDate').value = new Date().toISOString().split('T')[0];
+      document.getElementById('transactionModal').classList.add('show');
+    }
+
+    document.querySelectorAll('.modal').forEach(modal => {
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) modal.classList.remove('show');
+      });
+    });
+
+    loadTransactions();
+  </script>
+</body>
+</html>

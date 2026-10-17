@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mensajes / WhatsApp - Esquelas-Balance</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <div class="main-layout">
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-brand">🧾 Esquelas-Balance</div>
+      <ul class="sidebar-nav">
+        <li><a href="dashboard.html"><span>📊</span> Dashboard</a></li>
+        <li><a href="receipts.html"><span>🧾</span> Esquelas de Pago</a></li>
+        <li><a href="transactions.html"><span>💰</span> Ingresos & Egresos</a></li>
+        <li><a href="messages.html" class="active"><span>💬</span> Mensajes / WhatsApp</a></li>
+        <li style="margin-top:30px;"><a href="login.html" id="logoutLink" style="color:var(--color-danger);"><span>🚪</span> Cerrar Sesión</a></li>
+      </ul>
+    </aside>
+
+    <div class="main-content">
+      <div class="page-header">
+        <h1>💬 Mensajes / WhatsApp</h1>
+        <p>Envíe agradecimientos por pagos, recordatorios y notificaciones por WhatsApp (sin API, directo a wa.me).</p>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Enviar un Mensaje</div>
+        </div>
+        <div style="display:flex; gap:12px; flex-wrap:wrap;">
+          <button class="btn btn-success" onclick="openMessageModal('thank-you')">💚 Agradecimiento por pago</button>
+          <button class="btn btn-primary" onclick="openMessageModal('reminder')">⏰ Recordatorio de pago</button>
+          <button class="btn btn-whatsapp" onclick="openMessageModal('receipt-notification')">🧾 Notificación de esquela</button>
+        </div>
+      </div>
+
+      <div id="alert-container"></div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Mensajes Internos</div>
+        </div>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Tipo</th>
+                <th>Título</th>
+                <th>Destinatario</th>
+                <th>Fecha</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="messagesTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Mensaje WhatsApp -->
+  <div class="modal" id="messageModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="modal-title" id="msgModalTitle">Mensaje de Agradecimiento</div>
+        <button class="close-modal" onclick="closeModal('messageModal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div id="msgAlert"></div>
+        <form id="messageForm">
+          <input type="hidden" id="msgType" value="thank-you">
+          <div class="form-group">
+            <label class="form-label">Teléfono del Destinatario</label>
+            <input type="tel" id="mPhone" class="form-input" placeholder="+51 999 999 999" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Nombre del Cliente</label>
+            <input type="text" id="mClientName" class="form-input" placeholder="Juan Pérez" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Monto (S/)</label>
+            <input type="number" id="mAmount" class="form-input" step="0.01" min="0" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Concepto</label>
+            <input type="text" id="mConcept" class="form-input" placeholder="Pago de alquiler" required>
+          </div>
+          <div class="form-group" id="mDueDateGroup" style="display:none;">
+            <label class="form-label">Fecha de Vencimiento</label>
+            <input type="date" id="mDueDate" class="form-input">
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" onclick="closeModal('messageModal')">Cancelar</button>
+        <button type="button" class="btn btn-whatsapp" onclick="generateWhatsAppMessage()">Generar Enlace WhatsApp</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/app.js"></script>
+  <script src="../js/whatsapp.js"></script>
+
+  <script>
+    const token = getToken();
+    if (!token) window.location.href = 'login.html';
+
+    document.getElementById('logoutLink').addEventListener('click', (e) => {
+      e.preventDefault();
+      logout();
+    });
+
+    function closeModal(modalId) {
+      document.getElementById(modalId).classList.remove('show');
+    }
+
+    function openMessageModal(type) {
+      document.getElementById('msgType').value = type;
+      const titles = {
+        'thank-you': 'Mensaje de Agradecimiento',
+        'reminder': 'Recordatorio de Pago',
+        'receipt-notification': 'Notificación de Esquela'
+      };
+      document.getElementById('msgModalTitle').textContent = titles[type] || 'Mensaje';
+      document.getElementById('mDueDateGroup').style.display = type === 'reminder' ? 'block' : 'none';
+      document.getElementById('messageForm').reset();
+      document.getElementById('msgAlert').innerHTML = '';
+      document.getElementById('messageModal').classList.add('show');
+    }
+
+    document.querySelectorAll('.modal').forEach(modal => {
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) modal.classList.remove('show');
+      });
+    });
+
+    const typeLabels = {
+      'thank-you': '💚 Agradecimiento',
+      'reminder': '⏰ Recordatorio',
+      'receipt-notification': '🧾 Notificación',
+      'general': '📢 General'
+    };
+
+    async function loadMessages() {
+      const tbody = document.getElementById('messagesTableBody');
+      if (!tbody) return;
+
+      try {
+        const res = await apiFetch('/messages');
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Error al cargar mensajes');
+
+        if (!data.messages || data.messages.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:40px; color:var(--color-text-light);"><div class="empty-state-icon">💬</div>No hay mensajes registrados.</td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = data.messages.map(m => `
+          <tr>
+            <td><span class="badge">${typeLabels[m.type] || '📝 General'}</span></td>
+            <td>${escapeHtml(m.title)}</td>
+            <td>
+              ${escapeHtml(m.recipient_name)}<br>
+              <small style="color:var(--color-text-light);">${escapeHtml(m.recipient_phone || 'Sin teléfono')}</small>
+            </td>
+            <td>${escapeHtml(formatDate(m.created_at))}</td>
+            <td><span class="badge badge-${m.sent_via_whatsapp ? 'enviado' : 'emitido'}">${m.sent_via_whatsapp ? 'Enviado' : 'Pendiente'}</span></td>
+            <td>
+              <button class="btn btn-sm btn-whatsapp" onclick="shareMessageWhatsApp(${m.id})" ${m.recipient_phone ? '' : 'disabled'}>📲 Enviar</button>
+            </td>
+          </tr>
+        `).join('');
+      } catch (err) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:var(--color-danger);">' + escapeHtml(err.message) + '</td></tr>';
+      }
+    }
+
+    loadMessages();
+  </script>
+</body>
+</html>

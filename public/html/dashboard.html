@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - Esquelas-Balance</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <div class="main-layout">
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-brand">🧾 Esquelas-Balance</div>
+      <ul class="sidebar-nav">
+        <li><a href="dashboard.html" class="active"><span>📊</span> Dashboard</a></li>
+        <li><a href="receipts.html"><span>🧾</span> Esquelas de Pago</a></li>
+        <li><a href="transactions.html"><span>💰</span> Ingresos & Egresos</a></li>
+        <li><a href="messages.html"><span>💬</span> Mensajes / WhatsApp</a></li>
+        <li style="margin-top:30px;"><a href="login.html" id="logoutLink" style="color:var(--color-danger);"><span>🚪</span> Cerrar Sesión</a></li>
+      </ul>
+    </aside>
+
+    <div class="main-content">
+      <div class="topbar">
+        <div>
+          <h1 style="font-size:22px; color:var(--color-text);">Dashboard</h1>
+          <p style="color:var(--color-text-light); font-size:14px;">Bienvenido de vuelta, <span id="userName" style="font-weight:600; color:var(--color-primary-dark);"></span></p>
+        </div>
+        <div class="user-info">
+          <span style="font-size:13px; color:var(--color-text-light);" id="userEmail"></span>
+        </div>
+      </div>
+
+      <div id="alert-container"></div>
+
+      <div class="stats-grid">
+        <div class="stat-card primary">
+          <div class="stat-icon">🧾</div>
+          <div>
+            <div class="stat-value" id="statReceipts">0</div>
+            <div class="stat-label">Esquelas Generadas</div>
+          </div>
+        </div>
+        <div class="stat-card success">
+          <div class="stat-icon">💰</div>
+          <div>
+            <div class="stat-value" id="statIncome">S/ 0.00</div>
+            <div class="stat-label">Ingresos Totales</div>
+          </div>
+        </div>
+        <div class="stat-card danger">
+          <div class="stat-icon">📤</div>
+          <div>
+            <div class="stat-value" id="statExpense">S/ 0.00</div>
+            <div class="stat-label">Egresos Totales</div>
+          </div>
+        </div>
+        <div class="stat-card warning">
+          <div class="stat-icon">📊</div>
+          <div>
+            <div class="stat-value" id="statBalance">S/ 0.00</div>
+            <div class="stat-label">Balance Neto</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Acciones Rápidas</div>
+        </div>
+        <div style="display:flex; gap:12px; flex-wrap:wrap;">
+          <button class="btn btn-success" onclick="openReceiptModal()">+ Nueva Esquela de Pago</button>
+          <button class="btn btn-primary" onclick="openTransactionModal('income')">+ Registrar Ingreso</button>
+          <button class="btn btn-outline" onclick="openTransactionModal('expense')">+ Registrar Egreso</button>
+          <button class="btn btn-whatsapp" onclick="openMessageModal('thank-you')">📲 Mensaje WhatsApp</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Esquelas Recientes</div>
+          <a href="receipts.html" class="btn btn-sm btn-outline">Ver todas</a>
+        </div>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Número</th>
+                <th>Cliente</th>
+                <th>Monto</th>
+                <th>Método</th>
+                <th>Fecha</th>
+                <th>Estado</th>
+              </tr>
+            </thead>
+            <tbody id="receiptsTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Nueva Esquela -->
+  <div class="modal" id="receiptModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="modal-title">Nueva Esquela de Pago</div>
+        <button class="close-modal" onclick="closeModal('receiptModal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div id="receiptAlert"></div>
+        <form id="receiptForm">
+          <div class="form-group">
+            <label class="form-label">Nombre del Cliente</label>
+            <input type="text" id="rClientName" class="form-input" placeholder="Juan Pérez García" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Teléfono del Cliente</label>
+            <input type="tel" id="rClientPhone" class="form-input" placeholder="+51 999 999 999" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Email (opcional)</label>
+            <input type="email" id="rClientEmail" class="form-input" placeholder="cliente@email.com">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Monto (S/)</label>
+            <input type="number" id="rAmount" class="form-input" step="0.01" min="0" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Concepto</label>
+            <input type="text" id="rConcept" class="form-input" placeholder="Pago de alquiler enero 2026" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Método de Pago</label>
+            <select id="rPaymentMethod" class="form-select" required>
+              <option value="transferencia">Transferencia Bancaria</option>
+              <option value="deposito">Depósito</option>
+              <option value="yape">Yape</option>
+              <option value="plin">Plin</option>
+              <option value="efectivo">Efectivo</option>
+              <option value="tarjeta">Tarjeta</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Referencia / Operación</label>
+            <input type="text" id="rReference" class="form-input" placeholder="OP-2026-001234">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Fecha de Pago</label>
+            <input type="date" id="rPaymentDate" class="form-input" required>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" onclick="closeModal('receiptModal')">Cancelar</button>
+        <button type="button" class="btn btn-primary" onclick="saveReceipt()">Guardar Esquela</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Nueva Transacción -->
+  <div class="modal" id="transactionModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="modal-title" id="txModalTitle">Nuevo Ingreso</div>
+        <button class="close-modal" onclick="closeModal('transactionModal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div id="txAlert"></div>
+        <form id="transactionForm">
+          <input type="hidden" id="txType" value="income">
+          <div class="form-group">
+            <label class="form-label">Descripción</label>
+            <input type="text" id="txDescription" class="form-input" placeholder="Pago de alquiler" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Monto (S/)</label>
+            <input type="number" id="txAmount" class="form-input" step="0.01" min="0" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Categoría</label>
+            <input type="text" id="txCategory" class="form-input" placeholder="Alquiler" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Fecha</label>
+            <input type="date" id="txDate" class="form-input" required>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" onclick="closeModal('transactionModal')">Cancelar</button>
+        <button type="button" class="btn btn-primary" onclick="saveTransaction()">Guardar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Mensaje WhatsApp -->
+  <div class="modal" id="messageModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="modal-title" id="msgModalTitle">Mensaje de Agradecimiento</div>
+        <button class="close-modal" onclick="closeModal('messageModal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div id="msgAlert"></div>
+        <form id="messageForm">
+          <input type="hidden" id="msgType" value="thank-you">
+          <div class="form-group">
+            <label class="form-label">Teléfono del Destinatario</label>
+            <input type="tel" id="mPhone" class="form-input" placeholder="+51 999 999 999" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Nombre del Cliente</label>
+            <input type="text" id="mClientName" class="form-input" placeholder="Juan Pérez" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Monto (S/)</label>
+            <input type="number" id="mAmount" class="form-input" step="0.01" min="0" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Concepto</label>
+            <input type="text" id="mConcept" class="form-input" placeholder="Pago de alquiler" required>
+          </div>
+          <div class="form-group" id="mDueDateGroup" style="display:none;">
+            <label class="form-label">Fecha de Vencimiento</label>
+            <input type="date" id="mDueDate" class="form-input">
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" onclick="closeModal('messageModal')">Cancelar</button>
+        <button type="button" class="btn btn-whatsapp" onclick="generateWhatsAppMessage()">Generar Enlace WhatsApp</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/app.js"></script>
+  <script src="../js/receipts.js"></script>
+  <script src="../js/transactions.js"></script>
+  <script src="../js/whatsapp.js"></script>
+  <script>
+    const token = localStorage.getItem('token');
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+
+    if (!token) {
+      window.location.href = 'login.html';
+    }
+
+    document.getElementById('userName').textContent = user.name || 'Usuario';
+    document.getElementById('userEmail').textContent = user.email || '';
+
+    document.getElementById('logoutLink').addEventListener('click', (e) => {
+      e.preventDefault();
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      window.location.href = 'login.html';
+    });
+
+    function openReceiptModal() {
+      document.getElementById('receiptForm').reset();
+      document.getElementById('receiptAlert').innerHTML = '';
+      document.getElementById('rPaymentDate').value = new Date().toISOString().split('T')[0];
+      document.getElementById('receiptModal').classList.add('show');
+    }
+
+    function closeModal(modalId) {
+      document.getElementById(modalId).classList.remove('show');
+    }
+
+    function openTransactionModal(type) {
+      document.getElementById('txType').value = type;
+      document.getElementById('txModalTitle').textContent = type === 'income' ? 'Nuevo Ingreso' : 'Nuevo Egreso';
+      document.getElementById('transactionForm').reset();
+      document.getElementById('txAlert').innerHTML = '';
+      document.getElementById('txDate').value = new Date().toISOString().split('T')[0];
+      document.getElementById('transactionModal').classList.add('show');
+    }
+
+    function openMessageModal(type) {
+      document.getElementById('msgType').value = type;
+      const titles = {
+        'thank-you': 'Mensaje de Agradecimiento',
+        'reminder': 'Recordatorio de Pago',
+        'receipt-notification': 'Notificación de Esquela',
+        'general': 'Mensaje General'
+      };
+      document.getElementById('msgModalTitle').textContent = titles[type] || 'Mensaje';
+      document.getElementById('mDueDateGroup').style.display = type === 'reminder' ? 'block' : 'none';
+      document.getElementById('messageForm').reset();
+      document.getElementById('msgAlert').innerHTML = '';
+      document.getElementById('messageModal').classList.add('show');
+    }
+
+    document.querySelectorAll('.modal').forEach(modal => {
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) modal.classList.remove('show');
+      });
+    });
+
+    // Escapado XSS: renderizar valores con textContent, nunca innerHTML con datos crudos
+    function escapeHtml(str) {
+      const div = document.createElement('div');
+      div.textContent = String(str == null ? '' : str);
+      return div.innerHTML;
+    }
+
+    async function loadDashboard() {
+      try {
+        const receiptsRes = await fetch('/api/receipts', {
+          headers: { 'Authorization': 'Bearer ' + token }
+        });
+        const receiptsData = await receiptsRes.json();
+        if (receiptsData.receipts) {
+          document.getElementById('statReceipts').textContent = receiptsData.receipts.length;
+          const tbody = document.getElementById('receiptsTableBody');
+          tbody.innerHTML = receiptsData.receipts.slice(0, 5).map(r => `
+            <tr>
+              <td><strong>${escapeHtml(r.receipt_number)}</strong></td>
+              <td>${escapeHtml(r.client_name)}</td>
+              <td>S/ ${parseFloat(r.amount).toFixed(2)}</td>
+              <td><span class="badge">${escapeHtml(r.payment_method)}</span></td>
+              <td>${escapeHtml(r.payment_date)}</td>
+              <td><span class="badge badge-${r.whatsapp_sent ? 'enviado' : 'emitido'}">${escapeHtml(r.status)}</span></td>
+            </tr>
+          `).join('');
+        }
+
+        const txRes = await fetch('/api/transactions', {
+          headers: { 'Authorization': 'Bearer ' + token }
+        });
+        const txData = await txRes.json();
+        if (txData.balance) {
+          document.getElementById('statIncome').textContent = 'S/ ' + txData.balance.income.toFixed(2);
+          document.getElementById('statExpense').textContent = 'S/ ' + txData.balance.expense.toFixed(2);
+          document.getElementById('statBalance').textContent = 'S/ ' + txData.balance.net.toFixed(2);
+          document.getElementById('statBalance').style.color = txData.balance.net >= 0 ? '#00b894' : '#d63031';
+        }
+      } catch (err) {
+        console.error('Error al cargar dashboard:', err);
+      }
+    }
+
+    loadDashboard();
+  </script>
+</body>
+</html>

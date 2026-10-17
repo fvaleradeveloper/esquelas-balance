@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Esquelas de Pago - Esquelas-Balance</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <div class="main-layout">
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-brand">🧾 Esquelas-Balance</div>
+      <ul class="sidebar-nav">
+        <li><a href="dashboard.html"><span>📊</span> Dashboard</a></li>
+        <li><a href="receipts.html" class="active"><span>🧾</span> Esquelas de Pago</a></li>
+        <li><a href="transactions.html"><span>💰</span> Ingresos & Egresos</a></li>
+        <li><a href="messages.html"><span>💬</span> Mensajes / WhatsApp</a></li>
+        <li style="margin-top:30px;"><a href="login.html" id="logoutLink" style="color:var(--color-danger);"><span>🚪</span> Cerrar Sesión</a></li>
+      </ul>
+    </aside>
+
+    <div class="main-content">
+      <div class="page-header">
+        <h1>🧾 Esquelas de Pago</h1>
+        <p>Genere recibos de pago por depósitos, transferencias y otros métodos. Descargue en PDF y comparta por WhatsApp.</p>
+      </div>
+
+      <div id="alert-container"></div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Sus Esquelas</div>
+          <button class="btn btn-success" onclick="openReceiptModal()">+ Nueva Esquela</button>
+        </div>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Número</th>
+                <th>Cliente</th>
+                <th>Monto</th>
+                <th>Concepto</th>
+                <th>Método</th>
+                <th>Fecha</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="receiptsTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Nueva Esquela -->
+  <div class="modal" id="receiptModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="modal-title">Nueva Esquela de Pago</div>
+        <button class="close-modal" onclick="closeModal('receiptModal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div id="receiptAlert"></div>
+        <form id="receiptForm">
+          <div class="form-group">
+            <label class="form-label">Nombre del Cliente</label>
+            <input type="text" id="rClientName" class="form-input" placeholder="Juan Pérez García" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Teléfono del Cliente</label>
+            <input type="tel" id="rClientPhone" class="form-input" placeholder="+51 999 999 999" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Email (opcional)</label>
+            <input type="email" id="rClientEmail" class="form-input" placeholder="cliente@email.com">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Monto (S/)</label>
+            <input type="number" id="rAmount" class="form-input" step="0.01" min="0" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Concepto</label>
+            <input type="text" id="rConcept" class="form-input" placeholder="Pago de alquiler enero 2026" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Método de Pago</label>
+            <select id="rPaymentMethod" class="form-select" required>
+              <option value="transferencia">Transferencia Bancaria</option>
+              <option value="deposito">Depósito</option>
+              <option value="yape">Yape</option>
+              <option value="plin">Plin</option>
+              <option value="efectivo">Efectivo</option>
+              <option value="tarjeta">Tarjeta</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Referencia / Operación</label>
+            <input type="text" id="rReference" class="form-input" placeholder="OP-2026-001234">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Fecha de Pago</label>
+            <input type="date" id="rPaymentDate" class="form-input" required>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" onclick="closeModal('receiptModal')">Cancelar</button>
+        <button type="button" class="btn btn-primary" onclick="saveReceipt()">Guardar Esquela</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/app.js"></script>
+  <script src="../js/receipts.js"></script>
+  <script>
+    const token = getToken();
+    if (!token) window.location.href = 'login.html';
+
+    document.getElementById('logoutLink').addEventListener('click', (e) => {
+      e.preventDefault();
+      logout();
+    });
+
+    function closeModal(modalId) {
+      document.getElementById(modalId).classList.remove('show');
+    }
+
+    function openReceiptModal() {
+      document.getElementById('receiptForm').reset();
+      document.getElementById('receiptAlert').innerHTML = '';
+      document.getElementById('rPaymentDate').value = new Date().toISOString().split('T')[0];
+      document.getElementById('receiptModal').classList.add('show');
+    }
+
+    document.querySelectorAll('.modal').forEach(modal => {
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) modal.classList.remove('show');
+      });
+    });
+
+    loadReceipts();
+  </script>
+</body>
+</html>
