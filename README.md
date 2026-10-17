@@ -1,12 +1,20 @@
 # Esquelas-Balance
 
-> Sistema de esquelas de pago (recibos), balance de ingresos/egresos y mensajería WhatsApp sin API. Diseño profesional en colores pasteles, 100% responsivo, protegido anti-hackers y listo para desplegar en **Vercel + Neon (PostgreSQL)**.
+> Sistema de esquelas de pago (recibos), **avisos de cobranza de agua y mantenimiento**, balance de ingresos/egresos y mensajería WhatsApp sin API. Diseño profesional en colores pasteles, 100% responsivo, protegido anti-hackers y desplegado en **Vercel + Neon (PostgreSQL)**.
+
+**En producción:**
+
+- App: **https://esquelas-balance.vercel.app**
+- Repositorio: **https://github.com/fvaleradeveloper/esquelas-balance**
+- Aviso de cobranza: **https://esquelas-balance.vercel.app/html/notice.html**
+- Health check: **https://esquelas-balance.vercel.app/api/health**
 
 ---
 
 ## Características
 
 - **Esquelas de pago (recibos):** Genere recibos por depósitos, transferencias, Yape, Plin, efectivo o tarjeta. Cada esquela tiene número único (RC-AAAAAA-NNNN), cliente, monto, concepto, referencia y fecha.
+- **Aviso de cobranza (agua + mantenimiento):** Plantilla reutilizable de una página apaisada con dos columnas: lecturas y deuda anterior a la izquierda, resumen de importes a la derecha, notas de tarifa (rojo) y bomba (azul), recuadro de vencimiento y totales inferiores. Motor de cálculo independiente con tarifa configurable por periodo y registro de discrepancias fórmula-vs-referencia. Impresión/PDF y compartir por WhatsApp.
 - **Descarga en PDF:** Generación de PDF en el navegador con jsPDF (sin dependencias de servidor).
 - **Ingresos y Egresos:** Registro financiero completo con balance neto en tiempo real.
 - **Mensajes WhatsApp (sin API):** Enlaces directos `wa.me` para:
