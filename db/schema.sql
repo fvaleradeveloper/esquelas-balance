@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS users (
 
 -- Asegurar que roles de SAAS y propietario existan (ejecutar en DB existente)
 ALTER TABLE users DROP CONSTRAINT IF EXISTS users_role_check;
-ALTER TABLE users ADD CONSTRAINT users_role_check CHECK (role IN ('admin', 'manager', 'resident', 'inquilino', 'saas_admin', 'owner'));
+ALTER TABLE users ADD CONSTRAINT users_role_check CHECK (role IN ('admin', 'manager', 'resident', 'inquilino', 'tenant', 'saas_admin', 'owner'));
 
 -- Tabla de propietarios (gestionada por cada tenant)
 CREATE TABLE IF NOT EXISTS owners (

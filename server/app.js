@@ -98,6 +98,9 @@ app.use(cors({
 // 6. Archivos estáticos
 app.use(express.static(path.join(__dirname, '..', 'public')));
 
+// También servir paginas de public/html en la raiz (para /login.html, /register.html, etc.)
+app.use(express.static(path.join(__dirname, '..', 'public', 'html')));
+
 // ============================================
 // MIDDLEWARE: inyectar pool en req para las rutas
 // ============================================

@@ -74,6 +74,38 @@ router.get('/', authenticateToken, async (req, res) => {
        ORDER BY created_at DESC`,
       [req.user.id]
     );
+
+    // Recordatorio automatico de pago al pasarse la fecha de cobro
+    try {
+      for (const n of result.rows) {
+        if (!n.payment_deadline) continue;
+        const parts = n.payment_deadline.split('/');
+        if (parts.length !== 3) continue;
+        const deadline = new Date(parts[2], parts[1] - 1, parts[0]);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        if (deadline >= today) continue;
+
+        const title = 'Recordatorio Aviso #' + n.id;
+        const exists = await db.query(
+          `SELECT id FROM internal_messages WHERE user_id = $1 AND type = 'reminder' AND title = $2`,
+          [req.user.id, title]
+        );
+        if (exists.rows.length === 0) {
+          await db.query(
+            `INSERT INTO internal_messages (user_id, type, title, body, recipient_name, recipient_phone, created_at)
+             VALUES ($1, 'reminder', $2, $3, $4, $5, NOW())`,
+            [req.user.id, title,
+             'Pago vencido: ' + n.billing_month + ' - ' + n.property_type + ' ' + n.property_code + ' - Total agua S/ ' + n.total_water_debt + '. Fecha limite: ' + n.payment_deadline,
+             n.owner_name, n.owner_phone || null]
+          );
+          console.log('⏰ Recordatorio automatico creado para aviso #' + n.id);
+        }
+      }
+    } catch (remError) {
+      console.error('Error al generar recordatorios automaticos:', remError);
+    }
+
     res.json({ notices: result.rows });
   } catch (error) {
     console.error('Error al listar avisos:', error);

@@ -82,13 +82,13 @@ function formatDate(dateStr) {
 
 // Validar telefono (formato internacional basico)
 function isValidPhone(phone) {
-  const cleaned = String(phone).replace(/[\\s\\-\\+\\(\\)]/g, '');
-  return /^\\d{8,15}$/.test(cleaned);
+  const cleaned = String(phone).replace(/[\s\-\+\(\)]/g, '');
+  return /^\d{8,15}$/.test(cleaned);
 }
 
 // Limpiar telefono para wa.me
 function cleanPhone(phone) {
-  return String(phone).replace(/[\\s\\-\\+\\(\\)]/g, '');
+  return String(phone).replace(/[\s\-\+\(\)]/g, '');
 }
 
 // Abrir enlace WhatsApp en nueva pestaña

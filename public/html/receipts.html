@@ -5,15 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Esquelas de Pago - Esquelas-Balance</title>
   <link rel="stylesheet" href="../css/style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
   <div class="main-layout">
     <aside class="sidebar" id="sidebar">
       <div class="sidebar-brand">🧾 Esquelas-Balance</div>
       <ul class="sidebar-nav">
-        <li><a href="dashboard.html"><span>📊</span> Dashboard</a></li>
+        <li><a href="owners.html"><span>🏠</span> Propietarios</a></li>
         <li><a href="receipts.html" class="active"><span>🧾</span> Esquelas de Pago</a></li>
-        <li><a href="notice.html"><span>📄</span> Aviso de Cobranza</a></li>
         <li><a href="transactions.html"><span>💰</span> Ingresos & Egresos</a></li>
         <li><a href="messages.html"><span>💬</span> Mensajes / WhatsApp</a></li>
         <li style="margin-top:30px;"><a href="login.html" id="logoutLink" style="color:var(--color-danger);"><span>🚪</span> Cerrar Sesión</a></li>
@@ -23,7 +23,7 @@
     <div class="main-content">
       <div class="page-header">
         <h1>🧾 Esquelas de Pago</h1>
-        <p>Genere recibos de pago por depósitos, transferencias y otros métodos. Descargue en PDF y comparta por WhatsApp.</p>
+        <p>Genere recibos de pago. PDF al vuelo (no se guarda) y envío por WhatsApp.</p>
       </div>
 
       <div id="alert-container"></div>
