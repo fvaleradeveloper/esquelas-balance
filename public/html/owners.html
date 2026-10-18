@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mis Propietarios - Esquelas-Balance</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <div class="main-layout">
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-brand">🏠 Mis Propietarios</div>
+      <ul class="sidebar-nav">
+        <li><a href="owners.html" class="active"><span>🏠</span> Propietarios</a></li>
+        <li><a href="receipts.html"><span>🧾</span> Esquelas de Pago</a></li>
+        <li><a href="transactions.html"><span>💰</span> Ingresos & Egresos</a></li>
+        <li><a href="messages.html"><span>💬</span> Mensajes / WhatsApp</a></li>
+        <li style="margin-top:30px;"><a href="login.html" id="logoutLink" style="color:var(--color-danger);"><span>🚪</span> Cerrar Sesión</a></li>
+      </ul>
+    </aside>
+
+    <div class="main-content">
+      <div class="page-header">
+        <h1>🏠 Propietarios del Condominio</h1>
+        <p>Gestione los propietarios de su tenant.</p>
+      </div>
+
+      <div id="alert-container"></div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Lista de Propietarios</div>
+          <button class="btn btn-success" onclick="openOwnerModal()">+ Agregar Propietario</button>
+        </div>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Email</th>
+                <th>Teléfono</th>
+                <th>Código Propiedad</th>
+                <th>Tipo</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="ownersTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Agregar/Editar Propietario -->
+  <div class="modal" id="ownerModal">
+    <div class="modal-content" style="max-width:520px;">
+      <div class="modal-header">
+        <div class="modal-title" id="ownerModalTitle">Agregar Propietario</div>
+        <button class="close-modal" onclick="closeModal('ownerModal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div id="ownerAlert"></div>
+        <form id="ownerForm">
+          <input type="hidden" id="ownerId">
+          <div class="form-group">
+            <label class="form-label">Nombre completo</label>
+            <input type="text" id="oName" class="form-input" placeholder="Juan Pérez García" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Email</label>
+            <input type="email" id="oEmail" class="form-input" placeholder="juan@email.com">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Teléfono</label>
+            <input type="tel" id="oPhone" class="form-input" placeholder="+51 999 999 999">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Código de Propiedad</label>
+            <input type="text" id="oPropertyCode" class="form-input" placeholder="F-32" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Tipo de Propiedad</label>
+            <input type="text" id="oPropertyType" class="form-input" value="CHALET" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Estado</label>
+            <select id="oStatus" class="form-select">
+              <option value="active">Activo</option>
+              <option value="inactive">Inactivo</option>
+            </select>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" onclick="closeModal('ownerModal')">Cancelar</button>
+        <button type="button" class="btn btn-primary" onclick="saveOwner()">Guardar Propietario</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/app.js"></script>
+  <script src="../js/owners.js"></script>
+  <script>
+    const token = getToken();
+    if (!token) window.location.href = 'login.html';
+
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    if (user.role !== 'tenant' && user.role !== 'saas_admin' && user.role !== 'admin') {
+      window.location.href = 'login.html';
+    }
+
+    document.getElementById('logoutLink').addEventListener('click', (e) => {
+      e.preventDefault();
+      logout();
+    });
+
+    function closeModal(modalId) {
+      document.getElementById(modalId).classList.remove('show');
+    }
+
+    function openOwnerModal() {
+      document.getElementById('ownerForm').reset();
+      document.getElementById('ownerId').value = '';
+      document.getElementById('ownerModalTitle').textContent = 'Agregar Propietario';
+      document.getElementById('ownerAlert').innerHTML = '';
+      document.getElementById('ownerModal').classList.add('show');
+    }
+
+    document.querySelectorAll('.modal').forEach(modal => {
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) modal.classList.remove('show');
+      });
+    });
+
+    loadOwners();
+  </script>
+</body>
+</html>

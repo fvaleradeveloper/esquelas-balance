@@ -1,6 +1,18 @@
 const express = require('express');
 const { body, validationResult } = require('express-validator');
 
+function formatCurrency(amount) {
+  return 'S/ ' + parseFloat(amount).toFixed(2);
+}
+
+function escapeHtml(str) {
+  return String(str == null ? '' : str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
 const router = express.Router();
 
 function authenticateToken(req, res, next) {
@@ -85,6 +97,19 @@ router.post('/', authenticateToken, [
       message: type === 'income' ? 'Ingreso registrado' : 'Egreso registrado',
       transaction: result.rows[0]
     });
+
+    // Mensaje de agradecimiento automático al recibir un pago (ingreso)
+    if (type === 'income') {
+      try {
+        await db.query(
+          `INSERT INTO internal_messages (user_id, type, title, body, recipient_name, recipient_phone, created_at)
+           VALUES ($1, 'thank-you', $2, $3, $4, $5, NOW())`,
+          [req.user.id, 'Gracias por su pago', `Hemos recibido su pago de ${formatCurrency(parseFloat(amount))} por: ${escapeHtml(description)}. ¡Gracias por su confianza!`, 'Cliente', null]
+        );
+      } catch (msgError) {
+        console.error('Error al crear mensaje de agradecimiento:', msgError);
+      }
+    }
   } catch (error) {
     console.error('Error al crear transacción:', error);
     res.status(500).json({ error: 'Error interno del servidor' });

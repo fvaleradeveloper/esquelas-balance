@@ -115,6 +115,8 @@ app.use('/api/transactions', require('./routes/transactions'));
 app.use('/api/whatsapp', require('./routes/whatsapp'));
 app.use('/api/messages', require('./routes/messages'));
 app.use('/api/notices', require('./routes/notices'));
+app.use('/api/owners', require('./routes/owners'));
+app.use('/api/admin', require('./routes/admin'));
 
 // Health check (para verificar el despliegue en vivo)
 app.get('/api/health', (req, res) => {

@@ -20,6 +20,35 @@ CREATE TABLE IF NOT EXISTS users (
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+-- Asegurar que roles de SAAS y propietario existan (ejecutar en DB existente)
+ALTER TABLE users DROP CONSTRAINT IF EXISTS users_role_check;
+ALTER TABLE users ADD CONSTRAINT users_role_check CHECK (role IN ('admin', 'manager', 'resident', 'inquilino', 'saas_admin', 'owner'));
+
+-- Tabla de propietarios (gestionada por cada tenant)
+CREATE TABLE IF NOT EXISTS owners (
+  id SERIAL PRIMARY KEY,
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  name VARCHAR(150) NOT NULL,
+  email VARCHAR(255),
+  phone VARCHAR(50),
+  property_code VARCHAR(50) NOT NULL,
+  property_type VARCHAR(50) DEFAULT 'CHALET',
+  status VARCHAR(50) NOT NULL DEFAULT 'active',
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Índices para rendimiento
+CREATE INDEX IF NOT EXISTS idx_collection_notices_user_id ON collection_notices(user_id);
+CREATE INDEX IF NOT EXISTS idx_receipts_user_id ON receipts(user_id);
+CREATE INDEX IF NOT EXISTS idx_receipts_receipt_number ON receipts(receipt_number);
+CREATE INDEX IF NOT EXISTS idx_transactions_user_id ON transactions(user_id);
+CREATE INDEX IF NOT EXISTS idx_transactions_type ON transactions(type);
+CREATE INDEX IF NOT EXISTS idx_internal_messages_user_id ON internal_messages(user_id);
+CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
+CREATE INDEX IF NOT EXISTS idx_owners_user_id ON owners(user_id);
+CREATE INDEX IF NOT EXISTS idx_owners_property_code ON owners(property_code);
+
 -- Tabla de esquelas de pago (recibos)
 CREATE TABLE IF NOT EXISTS receipts (
   id SERIAL PRIMARY KEY,
