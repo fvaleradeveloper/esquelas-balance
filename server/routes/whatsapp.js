@@ -2,6 +2,7 @@ const express = require('express');
 const { body, validationResult } = require('express-validator');
 
 const router = express.Router();
+const { validPhone } = require('../utils/validators');
 
 function authenticateToken(req, res, next) {
   const authHeader = req.headers['authorization'];
@@ -27,7 +28,7 @@ function handleValidationErrors(req, res, next) {
 // POST /api/whatsapp/generate - Generar enlace wa.me para compartir
 // ============================================
 router.post('/generate', authenticateToken, [
-  body('phone').trim().isMobilePhone('any').withMessage('Teléfono inválido'),
+  validPhone('phone'),
   body('message').trim().isLength({ min: 1, max: 1000 }).withMessage('Mensaje requerido (máx 1000 chars)'),
 ], handleValidationErrors, (req, res) => {
   const { phone, message } = req.body;
@@ -52,7 +53,7 @@ router.post('/generate', authenticateToken, [
 // POST /api/whatsapp/receipt - Generar mensaje de esquela de pago para WhatsApp
 // ============================================
 router.post('/receipt', authenticateToken, [
-  body('phone').trim().isMobilePhone('any').withMessage('Teléfono inválido'),
+  validPhone('phone'),
   body('receiptNumber').trim().notEmpty().withMessage('Número de recibo requerido'),
   body('clientName').trim().notEmpty().withMessage('Nombre del cliente requerido'),
   body('amount').isNumeric().withMessage('Monto requerido'),
@@ -88,7 +89,7 @@ router.post('/receipt', authenticateToken, [
 // POST /api/whatsapp/thank-you - Mensaje de agradecimiento por pago
 // ============================================
 router.post('/thank-you', authenticateToken, [
-  body('phone').trim().isMobilePhone('any').withMessage('Teléfono inválido'),
+  validPhone('phone'),
   body('clientName').trim().notEmpty().withMessage('Nombre del cliente requerido'),
   body('amount').isNumeric().withMessage('Monto requerido'),
   body('concept').trim().notEmpty().withMessage('Concepto requerido'),
@@ -118,7 +119,7 @@ router.post('/thank-you', authenticateToken, [
 // POST /api/whatsapp/reminder - Mensaje de recordatorio de pago
 // ============================================
 router.post('/reminder', authenticateToken, [
-  body('phone').trim().isMobilePhone('any').withMessage('Teléfono inválido'),
+  validPhone('phone'),
   body('clientName').trim().notEmpty().withMessage('Nombre del cliente requerido'),
   body('amount').isNumeric().withMessage('Monto requerido'),
   body('concept').trim().notEmpty().withMessage('Concepto requerido'),

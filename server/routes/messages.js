@@ -2,6 +2,7 @@ const express = require('express');
 const { body, validationResult } = require('express-validator');
 
 const router = express.Router();
+const { validPhone } = require('../utils/validators');
 
 function authenticateToken(req, res, next) {
   const authHeader = req.headers['authorization'];
@@ -52,7 +53,7 @@ router.post('/', authenticateToken, [
   body('title').trim().isLength({ min: 3, max: 100 }).withMessage('Título requerido (3-100 chars)'),
   body('body').trim().isLength({ min: 5, max: 2000 }).withMessage('Cuerpo del mensaje requerido (5-2000 chars)'),
   body('recipientName').trim().notEmpty().withMessage('Nombre del destinatario requerido'),
-  body('recipientPhone').optional().trim().isMobilePhone('any').withMessage('Teléfono inválido'),
+  validPhone('recipientPhone', true),
 ], handleValidationErrors, async (req, res) => {
   const db = req.db;
   const { type, title, body, recipientName, recipientPhone } = req.body;

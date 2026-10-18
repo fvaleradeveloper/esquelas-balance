@@ -2,6 +2,7 @@ const express = require('express');
 const { body, validationResult } = require('express-validator');
 
 const router = express.Router();
+const { validPhone } = require('../utils/validators');
 
 function authenticateToken(req, res, next) {
   const authHeader = req.headers['authorization'];
@@ -51,7 +52,7 @@ router.get('/', authenticateToken, async (req, res) => {
 // ============================================
 router.post('/', authenticateToken, [
   body('clientName').trim().isLength({ min: 2, max: 100 }).withMessage('Nombre del cliente requerido'),
-  body('clientPhone').trim().isMobilePhone('any').withMessage('Teléfono del cliente inválido'),
+  validPhone('clientPhone'),
   body('clientEmail').optional().isEmail().normalizeEmail().withMessage('Email inválido'),
   body('amount').isNumeric().withMessage('Monto debe ser numérico').isFloat({ min: 0 }).withMessage('Monto no puede ser negativo'),
   body('concept').trim().isLength({ min: 3, max: 200 }).withMessage('Concepto requerido (3-200 chars)'),

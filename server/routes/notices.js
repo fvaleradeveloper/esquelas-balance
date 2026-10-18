@@ -4,6 +4,7 @@ const { body, validationResult } = require('express-validator');
 const { computeNotice, round2 } = require('../utils/noticeCalc');
 
 const router = express.Router();
+const { validPhone } = require('../utils/validators');
 
 function authenticateToken(req, res, next) {
   const authHeader = req.headers['authorization'];
@@ -36,7 +37,7 @@ const noticeValidators = [
   body('propertyType').optional().trim().isLength({ max: 50 }),
   body('propertyCode').trim().isLength({ min: 1, max: 50 }).withMessage('Código del inmueble requerido'),
   body('ownerName').trim().isLength({ min: 3, max: 200 }).withMessage('Nombre del propietario requerido'),
-  body('ownerPhone').optional().trim().isMobilePhone('any').withMessage('Teléfono inválido'),
+  validPhone('ownerPhone', true),
   body('currentReading').isNumeric().withMessage('Lectura actual debe ser numérica'),
   body('previousReading').isNumeric().withMessage('Lectura anterior debe ser numérica'),
   body('pageNumber').optional().isInt({ min: 1 }).withMessage('Número de página inválido'),

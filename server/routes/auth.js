@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken');
 const { body, validationResult } = require('express-validator');
 
 const router = express.Router();
+const { validPhone } = require('../utils/validators');
 
 function authenticateToken(req, res, next) {
   const authHeader = req.headers['authorization'];
@@ -33,7 +34,7 @@ router.post('/register', [
   body('email').isEmail().normalizeEmail().withMessage('Email válido requerido'),
   body('password').isLength({ min: 6 }).withMessage('Contraseña mínima 6 caracteres'),
   body('name').trim().isLength({ min: 2, max: 100 }).withMessage('Nombre requerido (2-100 chars)'),
-  body('phone').optional().trim().isMobilePhone('any').withMessage('Teléfono inválido'),
+  validPhone('phone', true),
 ], handleValidationErrors, async (req, res) => {
   const db = req.db;
   const { email, password, name, phone } = req.body;

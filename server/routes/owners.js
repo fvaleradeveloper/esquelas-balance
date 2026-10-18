@@ -3,6 +3,7 @@ const { body, validationResult } = require('express-validator');
 const jwt = require('jsonwebtoken');
 
 const router = express.Router();
+const { validPhone } = require('../utils/validators');
 
 function authenticateToken(req, res, next) {
   const authHeader = req.headers['authorization'];
@@ -50,7 +51,7 @@ router.get('/', authenticateToken, requireTenant, async (req, res) => {
 router.post('/', authenticateToken, requireTenant, [
   body('name').trim().isLength({ min: 2, max: 150 }).withMessage('Nombre requerido (2-150 chars)'),
   body('email').optional().isEmail().normalizeEmail().withMessage('Email inválido'),
-  body('phone').optional().trim().isMobilePhone('any').withMessage('Teléfono inválido'),
+  validPhone('phone', true),
   body('property_code').trim().isLength({ min: 1, max: 50 }).withMessage('Código de propiedad requerido'),
   body('property_type').optional().trim().isLength({ max: 50 }),
 ], handleValidationErrors, async (req, res) => {
@@ -93,7 +94,7 @@ router.get('/:id', authenticateToken, requireTenant, async (req, res) => {
 router.put('/:id', authenticateToken, requireTenant, [
   body('name').optional().trim().isLength({ min: 2, max: 150 }).withMessage('Nombre inválido'),
   body('email').optional().isEmail().normalizeEmail().withMessage('Email inválido'),
-  body('phone').optional().trim().isMobilePhone('any').withMessage('Teléfono inválido'),
+  validPhone('phone', true),
   body('property_code').optional().trim().isLength({ min: 1, max: 50 }).withMessage('Código de propiedad inválido'),
   body('status').optional().isIn(['active', 'inactive']).withMessage('Estado inválido'),
 ], handleValidationErrors, async (req, res) => {

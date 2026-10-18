@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 
 const router = express.Router();
+const { validPhone } = require('../utils/validators');
 
 function authenticateToken(req, res, next) {
   const authHeader = req.headers['authorization'];
@@ -51,7 +52,7 @@ router.post('/tenants', authenticateToken, requireSaasAdmin, [
   body('email').isEmail().normalizeEmail().withMessage('Email válido requerido'),
   body('password').isLength({ min: 6 }).withMessage('Contraseña mínima 6 caracteres'),
   body('name').trim().isLength({ min: 2, max: 100 }).withMessage('Nombre requerido (2-100 chars)'),
-  body('phone').optional().trim().isMobilePhone('any').withMessage('Teléfono inválido'),
+  validPhone('phone', true),
 ], handleValidationErrors, async (req, res) => {
   const db = req.db;
   const { email, password, name, phone } = req.body;
@@ -78,7 +79,7 @@ router.post('/tenants', authenticateToken, requireSaasAdmin, [
 router.put('/tenants/:id', authenticateToken, requireSaasAdmin, [
   body('name').optional().trim().isLength({ min: 2, max: 100 }).withMessage('Nombre inválido'),
   body('email').optional().isEmail().normalizeEmail().withMessage('Email inválido'),
-  body('phone').optional().trim().isMobilePhone('any').withMessage('Teléfono inválido'),
+  validPhone('phone', true),
   body('status').optional().isIn(['active', 'inactive', 'deleted']).withMessage('Estado inválido'),
 ], handleValidationErrors, async (req, res) => {
   const db = req.db;
