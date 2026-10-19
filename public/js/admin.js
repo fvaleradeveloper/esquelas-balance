@@ -35,6 +35,11 @@ async function loadTenants() {
 async function saveTenant() {
   const form = document.getElementById('tenantForm');
   if (!form.reportValidity()) return;
+  const phoneVal = document.getElementById('tPhone').value.trim();
+  if (phoneVal && !isValidPhone(phoneVal)) {
+    showAlert('tenantAlert', 'El teléfono no es válido', 'error');
+    return;
+  }
   const id = document.getElementById('tenantId').value;
   const payload = {
     name: document.getElementById('tName').value.trim(),

@@ -82,7 +82,9 @@
 
         localStorage.setItem('token', data.token);
         localStorage.setItem('user', JSON.stringify(data.user));
-        // Redirigir segun rol (igual que login.html)
+        // Redirigir segun rol (igual que login.html).
+        // NOTA: el backend siempre crea rol 'tenant' en /register, asi que el caso
+        // normal cae en owners.html; se conservan las ramas por compatibilidad futura.
         const role = data.user.role;
         if (role === 'saas_admin') {
           window.location.href = 'admin.html';

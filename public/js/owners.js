@@ -36,6 +36,11 @@ async function loadOwners() {
 async function saveOwner() {
   const form = document.getElementById('ownerForm');
   if (!form.reportValidity()) return;
+  const phoneVal = document.getElementById('oPhone').value.trim();
+  if (phoneVal && !isValidPhone(phoneVal)) {
+    showAlert('ownerAlert', 'El teléfono no es válido', 'error');
+    return;
+  }
   const id = document.getElementById('ownerId').value;
   const payload = {
     name: document.getElementById('oName').value.trim(),
