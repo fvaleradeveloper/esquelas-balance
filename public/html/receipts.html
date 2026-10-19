@@ -33,7 +33,7 @@
       <div class="card">
         <div class="card-header">
           <div class="card-title">Sus Esquelas</div>
-          <button class="btn btn-success" onclick="openReceiptModal()">+ Nueva Esquela</button>
+          <button type="button" id="btnNewReceiptPage" class="btn btn-success" onclick="openReceiptModal()">+ Nueva Esquela</button>
         </div>
         <div class="table-container">
           <table>
@@ -128,13 +128,19 @@
     function closeModal(modalId) {
       document.getElementById(modalId).classList.remove('show');
     }
+    window.closeModal = closeModal;
 
     function openReceiptModal() {
-      document.getElementById('receiptForm').reset();
-      document.getElementById('receiptAlert').innerHTML = '';
-      document.getElementById('rPaymentDate').value = new Date().toISOString().split('T')[0];
+      const form = document.getElementById('receiptForm');
+      if (form) form.reset();
+      const alertBox = document.getElementById('receiptAlert');
+      if (alertBox) alertBox.innerHTML = '';
+      const dateInput = document.getElementById('rPaymentDate');
+      if (dateInput) dateInput.value = new Date().toISOString().split('T')[0];
       document.getElementById('receiptModal').classList.add('show');
     }
+    window.openReceiptModal = openReceiptModal;
+    document.getElementById('btnNewReceiptPage').addEventListener('click', openReceiptModal);
 
     document.querySelectorAll('.modal').forEach(modal => {
       modal.addEventListener('click', (e) => {
