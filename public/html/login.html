@@ -81,7 +81,8 @@
           window.location.href = 'dashboard.html';
         }
       } catch (err) {
-        alertContainer.innerHTML = `<div class="alert alert-error">${err.message}</div>`;
+        const safe = String(err.message || 'Error').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        alertContainer.innerHTML = `<div class="alert alert-error">${safe}</div>`;
       } finally {
         btn.disabled = false;
         btn.textContent = 'Iniciar Sesión';

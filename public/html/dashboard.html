@@ -279,41 +279,62 @@
     document.getElementById('btnNewReceipt').addEventListener('click', openReceiptModal);
 
     function closeModal(modalId) {
-      document.getElementById(modalId).classList.remove('show');
+      const el = document.getElementById(modalId);
+      if (el) el.classList.remove('show');
     }
     window.closeModal = closeModal;
 
     function openTransactionModal(type) {
-      document.getElementById('txType').value = type;
-      document.getElementById('txModalTitle').textContent = type === 'income' ? 'Nuevo Ingreso' : 'Nuevo Egreso';
-      document.getElementById('transactionForm').reset();
-      document.getElementById('txAlert').innerHTML = '';
-      document.getElementById('txDate').value = new Date().toISOString().split('T')[0];
-      document.getElementById('transactionModal').classList.add('show');
+      const t = document.getElementById('txType');
+      if (t) t.value = type;
+      const title = document.getElementById('txModalTitle');
+      if (title) title.textContent = type === 'income' ? 'Nuevo Ingreso' : 'Nuevo Egreso';
+      const form = document.getElementById('transactionForm');
+      if (form) form.reset();
+      const alertBox = document.getElementById('txAlert');
+      if (alertBox) alertBox.innerHTML = '';
+      const dateInput = document.getElementById('txDate');
+      if (dateInput) dateInput.value = new Date().toISOString().split('T')[0];
+      const m = document.getElementById('transactionModal');
+      if (m) m.classList.add('show');
     }
+    window.openTransactionModal = openTransactionModal;
 
     function openMessageModal(type) {
-      document.getElementById('msgType').value = type;
+      const msgType = document.getElementById('msgType');
+      if (msgType) msgType.value = type;
       const titles = {
         'thank-you': 'Mensaje de Agradecimiento',
         'reminder': 'Recordatorio de Pago',
         'receipt-notification': 'Notificación de Esquela',
         'general': 'Mensaje General'
       };
-      document.getElementById('msgModalTitle').textContent = titles[type] || 'Mensaje';
-      document.getElementById('mDueDateGroup').style.display = type === 'reminder' ? 'block' : 'none';
-      document.getElementById('mReceiptGroup').style.display = type === 'receipt-notification' ? 'block' : 'none';
+      const msgTitle = document.getElementById('msgModalTitle');
+      if (msgTitle) msgTitle.textContent = titles[type] || 'Mensaje';
+      const dueGroup = document.getElementById('mDueDateGroup');
+      if (dueGroup) dueGroup.style.display = type === 'reminder' ? 'block' : 'none';
+      const recGroup = document.getElementById('mReceiptGroup');
+      if (recGroup) recGroup.style.display = type === 'receipt-notification' ? 'block' : 'none';
       const isGeneral = type === 'general';
-      document.getElementById('mGeneralGroup').style.display = isGeneral ? 'block' : 'none';
-      document.getElementById('mAmountGroup').style.display = isGeneral ? 'none' : 'block';
-      document.getElementById('mConceptGroup').style.display = isGeneral ? 'none' : 'block';
-      document.getElementById('mAmount').required = !isGeneral;
-      document.getElementById('mConcept').required = !isGeneral;
-      document.getElementById('messageForm').reset();
-      document.getElementById('msgType').value = type;
-      document.getElementById('msgAlert').innerHTML = '';
-      document.getElementById('messageModal').classList.add('show');
+      const genGroup = document.getElementById('mGeneralGroup');
+      if (genGroup) genGroup.style.display = isGeneral ? 'block' : 'none';
+      const amtGroup = document.getElementById('mAmountGroup');
+      if (amtGroup) amtGroup.style.display = isGeneral ? 'none' : 'block';
+      const conGroup = document.getElementById('mConceptGroup');
+      if (conGroup) conGroup.style.display = isGeneral ? 'none' : 'block';
+      const amtInput = document.getElementById('mAmount');
+      if (amtInput) amtInput.required = !isGeneral;
+      const conInput = document.getElementById('mConcept');
+      if (conInput) conInput.required = !isGeneral;
+      const form = document.getElementById('messageForm');
+      if (form) form.reset();
+      if (msgType) msgType.value = type;
+      const alertBox = document.getElementById('msgAlert');
+      if (alertBox) alertBox.innerHTML = '';
+      const m = document.getElementById('messageModal');
+      if (m) m.classList.add('show');
     }
+    window.openMessageModal = openMessageModal;
 
     document.querySelectorAll('.modal').forEach(modal => {
       modal.addEventListener('click', (e) => {

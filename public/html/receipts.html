@@ -126,7 +126,8 @@
     });
 
     function closeModal(modalId) {
-      document.getElementById(modalId).classList.remove('show');
+      const el = document.getElementById(modalId);
+      if (el) el.classList.remove('show');
     }
     window.closeModal = closeModal;
 
@@ -137,7 +138,8 @@
       if (alertBox) alertBox.innerHTML = '';
       const dateInput = document.getElementById('rPaymentDate');
       if (dateInput) dateInput.value = new Date().toISOString().split('T')[0];
-      document.getElementById('receiptModal').classList.add('show');
+      const m = document.getElementById('receiptModal');
+      if (m) m.classList.add('show');
     }
     window.openReceiptModal = openReceiptModal;
     document.getElementById('btnNewReceiptPage').addEventListener('click', openReceiptModal);

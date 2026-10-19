@@ -128,17 +128,26 @@
     });
 
     function closeModal(modalId) {
-      document.getElementById(modalId).classList.remove('show');
+      const el = document.getElementById(modalId);
+      if (el) el.classList.remove('show');
     }
+    window.closeModal = closeModal;
 
     function openTransactionModal(type) {
-      document.getElementById('txType').value = type;
-      document.getElementById('txModalTitle').textContent = type === 'income' ? 'Nuevo Ingreso' : 'Nuevo Egreso';
-      document.getElementById('transactionForm').reset();
-      document.getElementById('txAlert').innerHTML = '';
-      document.getElementById('txDate').value = new Date().toISOString().split('T')[0];
-      document.getElementById('transactionModal').classList.add('show');
+      const t = document.getElementById('txType');
+      if (t) t.value = type;
+      const title = document.getElementById('txModalTitle');
+      if (title) title.textContent = type === 'income' ? 'Nuevo Ingreso' : 'Nuevo Egreso';
+      const form = document.getElementById('transactionForm');
+      if (form) form.reset();
+      const alertBox = document.getElementById('txAlert');
+      if (alertBox) alertBox.innerHTML = '';
+      const dateInput = document.getElementById('txDate');
+      if (dateInput) dateInput.value = new Date().toISOString().split('T')[0];
+      const m = document.getElementById('transactionModal');
+      if (m) m.classList.add('show');
     }
+    window.openTransactionModal = openTransactionModal;
 
     document.querySelectorAll('.modal').forEach(modal => {
       modal.addEventListener('click', (e) => {

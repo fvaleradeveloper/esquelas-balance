@@ -16,16 +16,25 @@ function fmtInt(v) {
 }
 
 function closeModal(modalId) {
-  document.getElementById(modalId).classList.remove('show');
+  const el = document.getElementById(modalId);
+  if (el) el.classList.remove('show');
 }
+window.closeModal = closeModal;
 
 function openNoticeModal() {
-  document.getElementById('noticeForm').reset();
-  document.getElementById('noticeAlert').innerHTML = '';
-  document.getElementById('previewCalcBox').innerHTML = '';
-  document.getElementById('nPropType').value = 'CHALET';
-  document.getElementById('noticeModal').classList.add('show');
+  if (typeof window._openNoticeModal !== 'function') window._openNoticeModal = openNoticeModal;
+  const form = document.getElementById('noticeForm');
+  if (form) form.reset();
+  const alertBox = document.getElementById('noticeAlert');
+  if (alertBox) alertBox.innerHTML = '';
+  const prevBox = document.getElementById('previewCalcBox');
+  if (prevBox) prevBox.innerHTML = '';
+  const pt = document.getElementById('nPropType');
+  if (pt) pt.value = 'CHALET';
+  const m = document.getElementById('noticeModal');
+  if (m) m.classList.add('show');
 }
+window.openNoticeModal = openNoticeModal;
 
 function collectNoticeForm() {
   const val = (id) => document.getElementById(id).value.trim();

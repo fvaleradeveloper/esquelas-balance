@@ -275,6 +275,27 @@
     const token = getToken();
     if (!token) window.location.href = 'login.html';
 
+    function closeModal(modalId) {
+      const el = document.getElementById(modalId);
+      if (el) el.classList.remove('show');
+    }
+    window.closeModal = closeModal;
+
+    function openNoticeModal() {
+      if (typeof window._openNoticeModal === 'function') { window._openNoticeModal(); return; }
+      const form = document.getElementById('noticeForm');
+      if (form) form.reset();
+      const alertBox = document.getElementById('noticeAlert');
+      if (alertBox) alertBox.innerHTML = '';
+      const prevBox = document.getElementById('previewCalcBox');
+      if (prevBox) prevBox.innerHTML = '';
+      const pt = document.getElementById('nPropType');
+      if (pt) pt.value = 'CHALET';
+      const m = document.getElementById('noticeModal');
+      if (m) m.classList.add('show');
+    }
+    window.openNoticeModal = openNoticeModal;
+
     document.getElementById('logoutLink').addEventListener('click', (e) => {
       e.preventDefault();
       logout();

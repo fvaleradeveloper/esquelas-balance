@@ -80,8 +80,7 @@
             <label class="form-label">Estado</label>
             <select id="tStatus" class="form-select">
               <option value="active">Activo</option>
-              <option value="inactivo">Inactivo</option>
-              <option value="deleted">Eliminado</option>
+              <option value="inactive">Inactivo</option>
             </select>
           </div>
         </form>
@@ -110,16 +109,26 @@
     });
 
     function closeModal(modalId) {
-      document.getElementById(modalId).classList.remove('show');
+      const el = document.getElementById(modalId);
+      if (el) el.classList.remove('show');
     }
+    window.closeModal = closeModal;
 
     function openTenantModal() {
-      document.getElementById('tenantForm').reset();
-      document.getElementById('tenantId').value = '';
-      document.getElementById('tenantModalTitle').textContent = 'Agregar Tenant';
-      document.getElementById('tenantAlert').innerHTML = '';
-      document.getElementById('tenantModal').classList.add('show');
+      const form = document.getElementById('tenantForm');
+      if (form) form.reset();
+      const idEl = document.getElementById('tenantId');
+      if (idEl) idEl.value = '';
+      const title = document.getElementById('tenantModalTitle');
+      if (title) title.textContent = 'Agregar Tenant';
+      const alertBox = document.getElementById('tenantAlert');
+      if (alertBox) alertBox.innerHTML = '';
+      const pwGroup = document.getElementById('tenantPasswordGroup');
+      if (pwGroup) pwGroup.style.display = 'block';
+      const m = document.getElementById('tenantModal');
+      if (m) m.classList.add('show');
     }
+    window.openTenantModal = openTenantModal;
 
     document.querySelectorAll('.modal').forEach(modal => {
       modal.addEventListener('click', (e) => {

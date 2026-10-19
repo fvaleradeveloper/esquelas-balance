@@ -119,16 +119,24 @@
     });
 
     function closeModal(modalId) {
-      document.getElementById(modalId).classList.remove('show');
+      const el = document.getElementById(modalId);
+      if (el) el.classList.remove('show');
     }
+    window.closeModal = closeModal;
 
     function openOwnerModal() {
-      document.getElementById('ownerForm').reset();
-      document.getElementById('ownerId').value = '';
-      document.getElementById('ownerModalTitle').textContent = 'Agregar Propietario';
-      document.getElementById('ownerAlert').innerHTML = '';
-      document.getElementById('ownerModal').classList.add('show');
+      const form = document.getElementById('ownerForm');
+      if (form) form.reset();
+      const idEl = document.getElementById('ownerId');
+      if (idEl) idEl.value = '';
+      const title = document.getElementById('ownerModalTitle');
+      if (title) title.textContent = 'Agregar Propietario';
+      const alertBox = document.getElementById('ownerAlert');
+      if (alertBox) alertBox.innerHTML = '';
+      const m = document.getElementById('ownerModal');
+      if (m) m.classList.add('show');
     }
+    window.openOwnerModal = openOwnerModal;
 
     document.querySelectorAll('.modal').forEach(modal => {
       modal.addEventListener('click', (e) => {
