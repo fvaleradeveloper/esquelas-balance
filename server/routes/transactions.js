@@ -36,30 +36,43 @@ function handleValidationErrors(req, res, next) {
 }
 
 // ============================================
-// GET /api/transactions - Listar ingresos y egresos
+// GET /api/transactions - Listar ingresos y egresos (paginado ?limit=&offset=, max 200; balance siempre global)
 // ============================================
 router.get('/', authenticateToken, async (req, res) => {
   const db = req.db;
 
   try {
+    const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 200, 1), 200);
+    const offset = Math.max(parseInt(req.query.offset, 10) || 0, 0);
+    const countResult = await db.query(
+      'SELECT COUNT(*) FROM transactions WHERE user_id = $1',
+      [req.user.id]
+    );
     const result = await db.query(
       `SELECT id, type, description, amount, category, date, created_at
        FROM transactions
        WHERE user_id = $1
-       ORDER BY date DESC, created_at DESC`,
-      [req.user.id]
+       ORDER BY date DESC, created_at DESC
+       LIMIT $2 OFFSET $3`,
+      [req.user.id, limit, offset]
     );
 
-    // Calcular balance
-    const income = result.rows
-      .filter(t => t.type === 'income')
-      .reduce((sum, t) => sum + parseFloat(t.amount), 0);
-    const expense = result.rows
-      .filter(t => t.type === 'expense')
-      .reduce((sum, t) => sum + parseFloat(t.amount), 0);
+    // Calcular balance global (sin paginar) para que el neto sea real
+    const totals = await db.query(
+      `SELECT
+         COALESCE(SUM(CASE WHEN type = 'income' THEN amount ELSE 0 END), 0) AS income,
+         COALESCE(SUM(CASE WHEN type = 'expense' THEN amount ELSE 0 END), 0) AS expense
+       FROM transactions WHERE user_id = $1`,
+      [req.user.id]
+    );
+    const income = parseFloat(totals.rows[0].income);
+    const expense = parseFloat(totals.rows[0].expense);
 
     res.json({
       transactions: result.rows,
+      total: parseInt(countResult.rows[0].count, 10),
+      limit,
+      offset,
       balance: {
         income,
         expense,

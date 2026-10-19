@@ -25,20 +25,27 @@ function handleValidationErrors(req, res, next) {
 }
 
 // ============================================
-// GET /api/messages - Listar mensajes internos del usuario
+// GET /api/messages - Listar mensajes (paginado ?limit=&offset=, max 200; compatible)
 // ============================================
 router.get('/', authenticateToken, async (req, res) => {
   const db = req.db;
 
   try {
+    const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 200, 1), 200);
+    const offset = Math.max(parseInt(req.query.offset, 10) || 0, 0);
+    const countResult = await db.query(
+      'SELECT COUNT(*) FROM internal_messages WHERE user_id = $1',
+      [req.user.id]
+    );
     const result = await db.query(
       `SELECT id, type, title, body, recipient_name, recipient_phone, sent_via_whatsapp, created_at
        FROM internal_messages
        WHERE user_id = $1
-       ORDER BY created_at DESC`,
-      [req.user.id]
+       ORDER BY created_at DESC
+       LIMIT $2 OFFSET $3`,
+      [req.user.id, limit, offset]
     );
-    res.json({ messages: result.rows });
+    res.json({ messages: result.rows, total: parseInt(countResult.rows[0].count, 10), limit, offset });
   } catch (error) {
     console.error('Error al listar mensajes:', error);
     res.status(500).json({ error: 'Error interno del servidor' });

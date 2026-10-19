@@ -1,7 +1,7 @@
 # 🧭 TRAYECTORIA — Esquelas-Balance (documento maestro de rumbo)
 
 > **Proposito:** que ningun cambio de modelo, agente o compactacion desvie el desarrollo. Si pierdes el hilo, lee este archivo + `README.md` y retoma desde "Lo que falta".
-> **Actualizado:** 2026-10-19 · P0 botones completado · Prod: https://esquelas-balance.vercel.app
+> **Actualizado:** 2026-10-19 · P0+P1 + push 2f56c98 a master · Prod: https://esquelas-balance.vercel.app
 
 ---
 

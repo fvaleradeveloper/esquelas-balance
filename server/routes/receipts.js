@@ -25,11 +25,17 @@ function handleValidationErrors(req, res, next) {
 }
 
 // ============================================
-// GET /api/receipts - Listar esquelas del usuario
+// GET /api/receipts - Listar esquelas (paginado ?limit=&offset=, max 200; compatible: frontend usa receipts[])
 // ============================================
 router.get('/', authenticateToken, async (req, res) => {
   const db = req.db;
 
+    const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 200, 1), 200);
+    const offset = Math.max(parseInt(req.query.offset, 10) || 0, 0);
+    const countResult = await db.query(
+      'SELECT COUNT(*) FROM receipts WHERE user_id = $1',
+      [req.user.id]
+    );
   try {
     const result = await db.query(
       `SELECT r.id, r.receipt_number, r.client_name, r.client_phone, r.client_email,
@@ -37,10 +43,11 @@ router.get('/', authenticateToken, async (req, res) => {
               r.status, r.whatsapp_sent, r.created_at, r.updated_at
        FROM receipts r
        WHERE r.user_id = $1
-       ORDER BY r.created_at DESC`,
-      [req.user.id]
+       ORDER BY r.created_at DESC
+       LIMIT $2 OFFSET $3`,
+      [req.user.id, limit, offset]
     );
-    res.json({ receipts: result.rows });
+    res.json({ receipts: result.rows, total: parseInt(countResult.rows[0].count, 10), limit, offset });
   } catch (error) {
     console.error('Error al listar esquelas:', error);
     res.status(500).json({ error: 'Error interno del servidor' });

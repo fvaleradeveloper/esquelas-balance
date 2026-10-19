@@ -58,11 +58,17 @@ noticeValidators.push(
 );
 
 // ============================================
-// GET /api/notices - Listar avisos de cobranza del usuario
+// GET /api/notices - Listar avisos (paginado ?limit=&offset=, max 200; compatible)
 // ============================================
 router.get('/', authenticateToken, async (req, res) => {
   const db = req.db;
   try {
+    const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 200, 1), 200);
+    const offset = Math.max(parseInt(req.query.offset, 10) || 0, 0);
+    const countResult = await db.query(
+      'SELECT COUNT(*) FROM collection_notices WHERE user_id = $1',
+      [req.user.id]
+    );
     const result = await db.query(
       `SELECT id, page_number, doc_type, main_concept, billing_month, condo_name,
               property_type, property_code, owner_name, owner_phone,
@@ -72,8 +78,9 @@ router.get('/', authenticateToken, async (req, res) => {
               payment_deadline, late_fee_start, whatsapp_sent, created_at
        FROM collection_notices
        WHERE user_id = $1
-       ORDER BY created_at DESC`,
-      [req.user.id]
+       ORDER BY created_at DESC
+       LIMIT $2 OFFSET $3`,
+      [req.user.id, limit, offset]
     );
 
     // Recordatorio automatico de pago al pasarse la fecha de cobro
@@ -107,7 +114,7 @@ router.get('/', authenticateToken, async (req, res) => {
       console.error('Error al generar recordatorios automaticos:', remError);
     }
 
-    res.json({ notices: result.rows });
+    res.json({ notices: result.rows, total: parseInt(countResult.rows[0].count, 10), limit, offset });
   } catch (error) {
     console.error('Error al listar avisos:', error);
     res.status(500).json({ error: 'Error interno del servidor' });
