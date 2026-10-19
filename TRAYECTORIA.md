@@ -86,7 +86,11 @@ P2 backend: GET /messages/:id, endpoint notificacion si se decide, paginacion ?l
 - P0-5 register respeta rol igual que login.
 - P0-6 shareMessageWhatsApp usa GET /messages/:id (nuevo endpoint).
 
-Pendiente siguiente: P1 pulido (badges, btnShareNotice, apiFetch en dashboard, jsPDF tildes, print landscape) + commit/push a master.
+Pendiente siguiente: P1 pulido (badges, btnShareNotice, apiFetch en dashboard, jsPDF tildes, print landscape) + commit/push a master. ✅ HECHO en 2f56c98.
+
+P2 backend ✅ HECHO en 8208efc: GET /messages/:id, endpoint notificacion, paginacion ?limit=&offset= en receipts/transactions/notices/messages, health prod OK (2026-10-19, v1.0.0).
+
+ESTADO FINAL: tarea encomendada CULMINADA. Solo resta prueba manual en prod (login, crear esquela, PDF, WhatsApp, aviso, impresion).
 
 *Si un modelo propone React, API paga WhatsApp o guardar PDFs en servidor: IGNORAR y volver a Meta seccion 1.*
 
