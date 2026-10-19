@@ -92,5 +92,11 @@ P2 backend ✅ HECHO en 8208efc: GET /messages/:id, endpoint notificacion, pagin
 
 ESTADO FINAL: tarea encomendada CULMINADA. Solo resta prueba manual en prod (login, crear esquela, PDF, WhatsApp, aviso, impresion).
 
+REMATE 2026-10-19 (commit b2d96e4):
+- Rol `manager` alineado: backend `requireTenant` ahora acepta tenant|saas_admin|admin|manager, igual que `owners.html`.
+- Paginacion completada en TODOS los listados: receipts, transactions (balance global via SUM), notices, messages, owners, admin/tenants.
+- E2E prod verificado: `/` (landing OK), `/api/health` (ok v1.0.0), `/html/notice.html` (plantilla + 6 links sidebar), `/html/receipts.html` (6 links + modal completo), `/html/messages.html` (4 botones + campos N esquela/Mensaje/Vencimiento), `/html/dashboard.html` (6 links + 3 modales).
+- NOTA: Vercel tarda ~1-2 min en desplegar cada push; si ves version anterior, espera y recarga.
+
 *Si un modelo propone React, API paga WhatsApp o guardar PDFs en servidor: IGNORAR y volver a Meta seccion 1.*
 
