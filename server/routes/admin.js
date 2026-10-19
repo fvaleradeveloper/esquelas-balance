@@ -32,15 +32,22 @@ function requireSaasAdmin(req, res, next) {
   next();
 }
 
-// GET /api/admin/tenants - Listar todos los tenants (SAAS admin)
+// GET /api/admin/tenants - Listar tenants (paginado ?limit=&offset=, max 200; compatible)
 router.get('/tenants', authenticateToken, requireSaasAdmin, async (req, res) => {
   const db = req.db;
   try {
+    const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 200, 1), 200);
+    const offset = Math.max(parseInt(req.query.offset, 10) || 0, 0);
+    const countResult = await db.query(
+      "SELECT COUNT(*) FROM users WHERE role = 'tenant'"
+    );
     const result = await db.query(
       `SELECT id, email, name, phone, role, status, created_at, updated_at
-       FROM users WHERE role = 'tenant' ORDER BY created_at DESC`
+       FROM users WHERE role = 'tenant' ORDER BY created_at DESC
+       LIMIT $1 OFFSET $2`,
+      [limit, offset]
     );
-    res.json({ tenants: result.rows });
+    res.json({ tenants: result.rows, total: parseInt(countResult.rows[0].count, 10), limit, offset });
   } catch (error) {
     console.error('Error al listar tenants:', error);
     res.status(500).json({ error: 'Error interno del servidor' });

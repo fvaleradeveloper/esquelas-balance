@@ -25,22 +25,29 @@ function handleValidationErrors(req, res, next) {
 }
 
 function requireTenant(req, res, next) {
-  if (!['tenant', 'saas_admin', 'admin'].includes(req.user.role)) {
+  if (!['tenant', 'saas_admin', 'admin', 'manager'].includes(req.user.role)) {
     return res.status(403).json({ error: 'Acceso denegado: rol insuficiente' });
   }
   next();
 }
 
-// GET /api/owners - Listar propietarios del tenant
+// GET /api/owners - Listar propietarios (paginado ?limit=&offset=, max 200; compatible)
 router.get('/', authenticateToken, requireTenant, async (req, res) => {
   const db = req.db;
   try {
-    const result = await db.query(
-      `SELECT id, name, email, phone, property_code, property_type, status, created_at, updated_at
-       FROM owners WHERE user_id = $1 ORDER BY created_at DESC`,
+    const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 200, 1), 200);
+    const offset = Math.max(parseInt(req.query.offset, 10) || 0, 0);
+    const countResult = await db.query(
+      'SELECT COUNT(*) FROM owners WHERE user_id = $1',
       [req.user.id]
     );
-    res.json({ owners: result.rows });
+    const result = await db.query(
+      `SELECT id, name, email, phone, property_code, property_type, status, created_at, updated_at
+       FROM owners WHERE user_id = $1 ORDER BY created_at DESC
+       LIMIT $2 OFFSET $3`,
+      [req.user.id, limit, offset]
+    );
+    res.json({ owners: result.rows, total: parseInt(countResult.rows[0].count, 10), limit, offset });
   } catch (error) {
     console.error('Error al listar propietarios:', error);
     res.status(500).json({ error: 'Error interno del servidor' });
