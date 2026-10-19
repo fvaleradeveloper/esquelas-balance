@@ -111,20 +111,32 @@ async function downloadReceiptPDF(receiptId) {
     doc.setFontSize(11);
     doc.text('Esquelas-Balance', 105, 25, { align: 'center' });
 
+    // Normalizar tildes para jsPDF (fuentes standard WinAnsi no soportan todos los glifos)
+    function pdfText(s) {
+      return String(s == null ? '' : s)
+        .replace(/[áàäâ]/g, 'a').replace(/[ÁÀÄÂ]/g, 'A')
+        .replace(/[éèëê]/g, 'e').replace(/[ÉÈËÊ]/g, 'E')
+        .replace(/[íìïî]/g, 'i').replace(/[ÍÌÏÎ]/g, 'I')
+        .replace(/[óòöô]/g, 'o').replace(/[ÓÒÖÔ]/g, 'O')
+        .replace(/[úùüû]/g, 'u').replace(/[ÚÙÜÛ]/g, 'U')
+        .replace(/ñ/g, 'n').replace(/Ñ/g, 'N')
+        .replace(/—/g, '-').replace(/°/g, 'o');
+    }
+
     // Detalles
     doc.setTextColor(45, 52, 54);
     doc.setFontSize(14);
-    doc.text('Recibo N°: ' + r.receipt_number, 20, 50);
+    doc.text('Recibo N: ' + pdfText(r.receipt_number), 20, 50);
 
     doc.setFontSize(11);
     const lines = [
-      ['Cliente:', r.client_name],
-      ['Teléfono:', r.client_phone],
-      ['Email:', r.client_email || '—'],
-      ['Concepto:', r.concept],
-      ['Método de pago:', r.payment_method],
-      ['Referencia:', r.reference || '—'],
-      ['Fecha de pago:', r.payment_date]
+      ['Cliente:', pdfText(r.client_name)],
+      ['Telefono:', pdfText(r.client_phone)],
+      ['Email:', pdfText(r.client_email || '-')],
+      ['Concepto:', pdfText(r.concept)],
+      ['Metodo de pago:', pdfText(r.payment_method)],
+      ['Referencia:', pdfText(r.reference || '-')],
+      ['Fecha de pago:', pdfText(r.payment_date)]
     ];
     let y = 65;
     for (const [label, value] of lines) {
@@ -146,7 +158,7 @@ async function downloadReceiptPDF(receiptId) {
     doc.setFontSize(9);
     doc.setFont(undefined, 'normal');
     doc.setTextColor(99, 110, 114);
-    doc.text('Documento generado por Esquelas-Balance - ' + new Date().toLocaleDateString('es-PE'), 105, 285, { align: 'center' });
+    doc.text(pdfText('Documento generado por Esquelas-Balance - ' + new Date().toLocaleDateString('es-PE')), 105, 285, { align: 'center' });
 
     doc.save('esquela-' + r.receipt_number + '.pdf');
   } catch (err) {

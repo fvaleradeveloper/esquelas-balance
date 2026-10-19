@@ -11,8 +11,10 @@
     <aside class="sidebar" id="sidebar">
       <div class="sidebar-brand">🏠 Mis Propietarios</div>
       <ul class="sidebar-nav">
+        <li><a href="dashboard.html"><span>📊</span> Dashboard</a></li>
         <li><a href="owners.html" class="active"><span>🏠</span> Propietarios</a></li>
         <li><a href="receipts.html"><span>🧾</span> Esquelas de Pago</a></li>
+        <li><a href="notice.html"><span>📄</span> Aviso de Cobranza</a></li>
         <li><a href="transactions.html"><span>💰</span> Ingresos & Egresos</a></li>
         <li><a href="messages.html"><span>💬</span> Mensajes / WhatsApp</a></li>
         <li style="margin-top:30px;"><a href="login.html" id="logoutLink" style="color:var(--color-danger);"><span>🚪</span> Cerrar Sesión</a></li>
@@ -107,7 +109,7 @@
     if (!token) window.location.href = 'login.html';
 
     const user = JSON.parse(localStorage.getItem('user') || '{}');
-    if (user.role !== 'tenant' && user.role !== 'saas_admin' && user.role !== 'admin') {
+    if (!['tenant', 'saas_admin', 'admin', 'manager'].includes(user.role)) {
       window.location.href = 'login.html';
     }
 

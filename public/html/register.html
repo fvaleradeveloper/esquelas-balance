@@ -82,7 +82,15 @@
 
         localStorage.setItem('token', data.token);
         localStorage.setItem('user', JSON.stringify(data.user));
-        window.location.href = 'dashboard.html';
+        // Redirigir segun rol (igual que login.html)
+        const role = data.user.role;
+        if (role === 'saas_admin') {
+          window.location.href = 'admin.html';
+        } else if (role === 'tenant') {
+          window.location.href = 'owners.html';
+        } else {
+          window.location.href = 'dashboard.html';
+        }
       } catch (err) {
         alertContainer.innerHTML = `<div class="alert alert-error">${err.message}</div>`;
       } finally {

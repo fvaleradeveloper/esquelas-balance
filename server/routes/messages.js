@@ -44,6 +44,24 @@ router.get('/', authenticateToken, async (req, res) => {
     res.status(500).json({ error: 'Error interno del servidor' });
   }
 });
+// GET /api/messages/:id - Detalle de un mensaje (para compartir sin traer toda la lista)
+router.get('/:id', authenticateToken, async (req, res) => {
+  const db = req.db;
+  try {
+    const result = await db.query(
+      'SELECT id, type, title, body, recipient_name, recipient_phone, sent_via_whatsapp, created_at FROM internal_messages WHERE id = $1 AND user_id = $2',
+      [req.params.id, req.user.id]
+    );
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Mensaje no encontrado' });
+    }
+    res.json({ message: result.rows[0] });
+  } catch (error) {
+    console.error('Error al obtener mensaje:', error);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  }
+});
+
 
 // ============================================
 // POST /api/messages - Crear mensaje interno (agradecimiento, recordatorio, etc.)

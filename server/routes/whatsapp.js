@@ -148,5 +148,27 @@ router.post('/reminder', authenticateToken, [
     type: 'reminder'
   });
 });
+// POST /api/whatsapp/receipt-notification - Notificacion de esquela emitida
+router.post('/receipt-notification', authenticateToken, [
+  validPhone('phone'),
+  body('clientName').trim().notEmpty().withMessage('Nombre del cliente requerido'),
+  body('receiptNumber').trim().notEmpty().withMessage('Numero de esquela requerido'),
+  body('amount').isNumeric().withMessage('Monto requerido'),
+  body('concept').trim().notEmpty().withMessage('Concepto requerido'),
+], handleValidationErrors, (req, res) => {
+  const { phone, clientName, receiptNumber, amount, concept, paymentMethod } = req.body;
+  const cleanPhone = phone.replace(/[\s\-\+\(\)]/g, '');
+  let message = '*Notificacion de Esquela - Esquelas-Balance*\n\n';
+  message += 'Estimado/a ' + clientName + ',\n\n';
+  message += 'Le informamos que se emitio su esquela *' + receiptNumber + '*:\n';
+  message += '*Concepto:* ' + concept + '\n';
+  message += '*Monto:* S/ ' + parseFloat(amount).toFixed(2) + '\n';
+  if (paymentMethod) { message += '*Metodo:* ' + paymentMethod + '\n'; }
+  message += '\nQuedamos atentos a su pago. Gracias.';
+  const encodedMessage = encodeURIComponent(message);
+  const whatsappUrl = 'https://wa.me/' + cleanPhone + '?text=' + encodedMessage;
+  res.json({ whatsappUrl, phone: cleanPhone, message, type: 'receipt-notification' });
+});
+
 
 module.exports = router;

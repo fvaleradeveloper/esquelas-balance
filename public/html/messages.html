@@ -34,6 +34,7 @@
           <button class="btn btn-success" onclick="openMessageModal('thank-you')">💚 Agradecimiento por pago</button>
           <button class="btn btn-primary" onclick="openMessageModal('reminder')">⏰ Recordatorio de pago</button>
           <button class="btn btn-whatsapp" onclick="openMessageModal('receipt-notification')">🧾 Notificación de esquela</button>
+          <button class="btn btn-outline" onclick="openMessageModal('general')">📢 Mensaje general</button>
         </div>
       </div>
 
@@ -81,13 +82,21 @@
             <label class="form-label">Nombre del Cliente</label>
             <input type="text" id="mClientName" class="form-input" placeholder="Juan Pérez" required>
           </div>
-          <div class="form-group">
+          <div class="form-group" id="mReceiptGroup" style="display:none;">
+            <label class="form-label">Número de Esquela</label>
+            <input type="text" id="mReceiptNumber" class="form-input" placeholder="RC-ABC123-0001">
+          </div>
+          <div class="form-group" id="mAmountGroup">
             <label class="form-label">Monto (S/)</label>
             <input type="number" id="mAmount" class="form-input" step="0.01" min="0" required>
           </div>
-          <div class="form-group">
+          <div class="form-group" id="mConceptGroup">
             <label class="form-label">Concepto</label>
             <input type="text" id="mConcept" class="form-input" placeholder="Pago de alquiler" required>
+          </div>
+          <div class="form-group" id="mGeneralGroup" style="display:none;">
+            <label class="form-label">Mensaje</label>
+            <textarea id="mGeneralText" class="form-input" rows="4" maxlength="1000" placeholder="Escriba el mensaje a enviar"></textarea>
           </div>
           <div class="form-group" id="mDueDateGroup" style="display:none;">
             <label class="form-label">Fecha de Vencimiento</label>
@@ -123,11 +132,20 @@
       const titles = {
         'thank-you': 'Mensaje de Agradecimiento',
         'reminder': 'Recordatorio de Pago',
-        'receipt-notification': 'Notificación de Esquela'
+        'receipt-notification': 'Notificación de Esquela',
+        'general': 'Mensaje General'
       };
       document.getElementById('msgModalTitle').textContent = titles[type] || 'Mensaje';
       document.getElementById('mDueDateGroup').style.display = type === 'reminder' ? 'block' : 'none';
+      document.getElementById('mReceiptGroup').style.display = type === 'receipt-notification' ? 'block' : 'none';
+      const isGeneral = type === 'general';
+      document.getElementById('mGeneralGroup').style.display = isGeneral ? 'block' : 'none';
+      document.getElementById('mAmountGroup').style.display = isGeneral ? 'none' : 'block';
+      document.getElementById('mConceptGroup').style.display = isGeneral ? 'none' : 'block';
+      document.getElementById('mAmount').required = !isGeneral;
+      document.getElementById('mConcept').required = !isGeneral;
       document.getElementById('messageForm').reset();
+      document.getElementById('msgType').value = type;
       document.getElementById('msgAlert').innerHTML = '';
       document.getElementById('messageModal').classList.add('show');
     }

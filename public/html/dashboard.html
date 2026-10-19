@@ -213,13 +213,21 @@
             <label class="form-label">Nombre del Cliente</label>
             <input type="text" id="mClientName" class="form-input" placeholder="Juan Pérez" required>
           </div>
-          <div class="form-group">
+          <div class="form-group" id="mReceiptGroup" style="display:none;">
+            <label class="form-label">Número de Esquela</label>
+            <input type="text" id="mReceiptNumber" class="form-input" placeholder="RC-ABC123-0001">
+          </div>
+          <div class="form-group" id="mAmountGroup">
             <label class="form-label">Monto (S/)</label>
             <input type="number" id="mAmount" class="form-input" step="0.01" min="0" required>
           </div>
-          <div class="form-group">
+          <div class="form-group" id="mConceptGroup">
             <label class="form-label">Concepto</label>
             <input type="text" id="mConcept" class="form-input" placeholder="Pago de alquiler" required>
+          </div>
+          <div class="form-group" id="mGeneralGroup" style="display:none;">
+            <label class="form-label">Mensaje</label>
+            <textarea id="mGeneralText" class="form-input" rows="4" maxlength="1000" placeholder="Escriba el mensaje a enviar"></textarea>
           </div>
           <div class="form-group" id="mDueDateGroup" style="display:none;">
             <label class="form-label">Fecha de Vencimiento</label>
@@ -286,7 +294,15 @@
       };
       document.getElementById('msgModalTitle').textContent = titles[type] || 'Mensaje';
       document.getElementById('mDueDateGroup').style.display = type === 'reminder' ? 'block' : 'none';
+      document.getElementById('mReceiptGroup').style.display = type === 'receipt-notification' ? 'block' : 'none';
+      const isGeneral = type === 'general';
+      document.getElementById('mGeneralGroup').style.display = isGeneral ? 'block' : 'none';
+      document.getElementById('mAmountGroup').style.display = isGeneral ? 'none' : 'block';
+      document.getElementById('mConceptGroup').style.display = isGeneral ? 'none' : 'block';
+      document.getElementById('mAmount').required = !isGeneral;
+      document.getElementById('mConcept').required = !isGeneral;
       document.getElementById('messageForm').reset();
+      document.getElementById('msgType').value = type;
       document.getElementById('msgAlert').innerHTML = '';
       document.getElementById('messageModal').classList.add('show');
     }
@@ -306,10 +322,10 @@
 
     async function loadDashboard() {
       try {
-        const receiptsRes = await fetch('/api/receipts', {
-          headers: { 'Authorization': 'Bearer ' + token }
-        });
+        const receiptsRes = await apiFetch('/receipts');
+        if (!receiptsRes) return;
         const receiptsData = await receiptsRes.json();
+        if (!receiptsRes.ok) throw new Error(receiptsData.error || 'Error al cargar esquelas');
         if (receiptsData.receipts) {
           document.getElementById('statReceipts').textContent = receiptsData.receipts.length;
           const tbody = document.getElementById('receiptsTableBody');
@@ -325,10 +341,10 @@
           `).join('');
         }
 
-        const txRes = await fetch('/api/transactions', {
-          headers: { 'Authorization': 'Bearer ' + token }
-        });
+        const txRes = await apiFetch('/transactions');
+        if (!txRes) return;
         const txData = await txRes.json();
+        if (!txRes.ok) throw new Error(txData.error || 'Error al cargar balance');
         if (txData.balance) {
           document.getElementById('statIncome').textContent = 'S/ ' + txData.balance.income.toFixed(2);
           document.getElementById('statExpense').textContent = 'S/ ' + txData.balance.expense.toFixed(2);

@@ -22,7 +22,7 @@ async function loadTenants() {
         <td><span class="badge">${t.status === 'active' ? 'emitido' : 'enviado'}</span></td>
         <td>${escapeHtml(formatDate(t.created_at))}</td>
         <td style="white-space:nowrap;">
-          <button class="btn btn-sm btn-primary" onclick="editTenant(${t.id}, '${escapeHtml(t.name)}', '${escapeHtml(t.email)}', '${escapeHtml(t.phone || '')}', '${t.status}')" title="Editar">✏️</button>
+          <button class="btn btn-sm btn-primary" onclick="editTenant(${t.id})" title="Editar">✏️</button>
           <button class="btn btn-sm btn-outline" style="color:var(--color-danger); border-color:var(--color-danger);" onclick="deleteTenant(${t.id})" title="Eliminar">✖</button>
         </td>
       </tr>
@@ -58,16 +58,25 @@ async function saveTenant() {
   }
 }
 
-async function editTenant(id, name, email, phone, status) {
-  document.getElementById('tenantId').value = id;
-  document.getElementById('tName').value = name;
-  document.getElementById('tEmail').value = email;
-  document.getElementById('tPhone').value = phone;
-  document.getElementById('tStatus').value = status;
-  document.getElementById('tenantModalTitle').textContent = 'Editar Tenant';
-  document.getElementById('tenantPasswordGroup').style.display = 'none';
-  document.getElementById('tenantAlert').innerHTML = '';
-  document.getElementById('tenantModal').classList.add('show');
+async function editTenant(id) {
+  try {
+    const res = await apiFetch('/admin/tenants/' + id);
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Error al obtener tenant');
+    const t = data.tenant;
+    if (!t) throw new Error('Tenant no encontrado');
+    document.getElementById('tenantId').value = t.id;
+    document.getElementById('tName').value = t.name || '';
+    document.getElementById('tEmail').value = t.email || '';
+    document.getElementById('tPhone').value = t.phone || '';
+    document.getElementById('tStatus').value = t.status || 'active';
+    document.getElementById('tenantModalTitle').textContent = 'Editar Tenant';
+    document.getElementById('tenantPasswordGroup').style.display = 'none';
+    document.getElementById('tenantAlert').innerHTML = '';
+    document.getElementById('tenantModal').classList.add('show');
+  } catch (err) {
+    showAlert('alert-container', err.message, 'error');
+  }
 }
 
 async function deleteTenant(id) {

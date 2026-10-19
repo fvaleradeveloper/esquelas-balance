@@ -23,7 +23,7 @@ async function loadOwners() {
         <td>${escapeHtml(o.property_type)}</td>
         <td><span class="badge">${o.status === 'active' ? 'emitido' : 'enviado'}</span></td>
         <td style="white-space:nowrap;">
-          <button class="btn btn-sm btn-primary" onclick="editOwner(${o.id}, '${escapeHtml(o.name)}', '${escapeHtml(o.email || '')}', '${escapeHtml(o.phone || '')}', '${escapeHtml(o.property_code)}', '${escapeHtml(o.property_type)}', '${o.status}')" title="Editar">✏️</button>
+          <button class="btn btn-sm btn-primary" onclick="editOwner(${o.id})" title="Editar">✏️</button>
           <button class="btn btn-sm btn-outline" style="color:var(--color-danger); border-color:var(--color-danger);" onclick="deleteOwner(${o.id})" title="Eliminar">✖</button>
         </td>
       </tr>
@@ -60,17 +60,25 @@ async function saveOwner() {
   }
 }
 
-async function editOwner(id, name, email, phone, propertyCode, propertyType, status) {
-  document.getElementById('ownerId').value = id;
-  document.getElementById('oName').value = name;
-  document.getElementById('oEmail').value = email;
-  document.getElementById('oPhone').value = phone;
-  document.getElementById('oPropertyCode').value = propertyCode;
-  document.getElementById('oPropertyType').value = propertyType;
-  document.getElementById('oStatus').value = status;
-  document.getElementById('ownerModalTitle').textContent = 'Editar Propietario';
-  document.getElementById('ownerAlert').innerHTML = '';
-  document.getElementById('ownerModal').classList.add('show');
+async function editOwner(id) {
+  try {
+    const res = await apiFetch('/owners/' + id);
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Error al obtener propietario');
+    const o = data.owner;
+    document.getElementById('ownerId').value = o.id;
+    document.getElementById('oName').value = o.name || '';
+    document.getElementById('oEmail').value = o.email || '';
+    document.getElementById('oPhone').value = o.phone || '';
+    document.getElementById('oPropertyCode').value = o.property_code || '';
+    document.getElementById('oPropertyType').value = o.property_type || 'CHALET';
+    document.getElementById('oStatus').value = o.status || 'active';
+    document.getElementById('ownerModalTitle').textContent = 'Editar Propietario';
+    document.getElementById('ownerAlert').innerHTML = '';
+    document.getElementById('ownerModal').classList.add('show');
+  } catch (err) {
+    showAlert('alert-container', err.message, 'error');
+  }
 }
 
 async function deleteOwner(id) {

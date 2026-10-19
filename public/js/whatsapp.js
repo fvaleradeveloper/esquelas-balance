@@ -1,6 +1,7 @@
 /* ============================================
    Esquelas-Balance - Mensajería WhatsApp (wa.me)
    Sin API: se generan enlaces directos
+   Tipos: thank-you | reminder | receipt-notification | general
    ============================================ */
 
 // Generar enlace WhatsApp desde el modal de mensajes
@@ -11,24 +12,52 @@ async function generateWhatsAppMessage() {
   const type = document.getElementById('msgType').value;
   const phone = document.getElementById('mPhone').value.trim();
   const clientName = document.getElementById('mClientName').value.trim();
-  const amount = parseFloat(document.getElementById('mAmount').value);
-  const concept = document.getElementById('mConcept').value.trim();
-  const dueDate = document.getElementById('mDueDate') ? document.getElementById('mDueDate').value : '';
 
   if (!isValidPhone(phone)) {
     showAlert('msgAlert', 'El teléfono no es válido', 'error');
     return;
   }
 
-  if (type === 'reminder' && !dueDate) {
-    showAlert('msgAlert', 'Ingrese la fecha de vencimiento', 'error');
-    return;
-  }
+  const TITLES = {
+    'thank-you': 'Agradecimiento por pago',
+    'reminder': 'Recordatorio de pago',
+    'receipt-notification': 'Notificación de esquela',
+    'general': 'Mensaje general'
+  };
 
   try {
-    const endpoint = type === 'reminder' ? '/whatsapp/reminder' : '/whatsapp/thank-you';
-    const payload = { phone, clientName, amount, concept };
-    if (type === 'reminder') payload.dueDate = dueDate;
+    let endpoint = '/whatsapp/thank-you';
+    let payload = { phone, clientName };
+
+    if (type === 'reminder') {
+      const amount = parseFloat(document.getElementById('mAmount').value);
+      const concept = document.getElementById('mConcept').value.trim();
+      const dueDateEl = document.getElementById('mDueDate');
+      const dueDate = dueDateEl ? dueDateEl.value : '';
+      if (!dueDate) { showAlert('msgAlert', 'Ingrese la fecha de vencimiento', 'error'); return; }
+      endpoint = '/whatsapp/reminder';
+      payload = { phone, clientName, amount, concept, dueDate };
+    } else if (type === 'thank-you') {
+      const amount = parseFloat(document.getElementById('mAmount').value);
+      const concept = document.getElementById('mConcept').value.trim();
+      endpoint = '/whatsapp/thank-you';
+      payload = { phone, clientName, amount, concept };
+    } else if (type === 'receipt-notification') {
+      const receiptNumber = document.getElementById('mReceiptNumber').value.trim();
+      const amount = parseFloat(document.getElementById('mAmount').value);
+      const concept = document.getElementById('mConcept').value.trim();
+      if (!receiptNumber) { showAlert('msgAlert', 'Ingrese el número de esquela', 'error'); return; }
+      endpoint = '/whatsapp/receipt-notification';
+      payload = { phone, clientName, receiptNumber, amount, concept };
+    } else if (type === 'general') {
+      const message = document.getElementById('mGeneralText').value.trim();
+      if (!message) { showAlert('msgAlert', 'Ingrese el mensaje', 'error'); return; }
+      endpoint = '/whatsapp/generate';
+      payload = { phone, message };
+    } else {
+      showAlert('msgAlert', 'Tipo de mensaje no soportado', 'error');
+      return;
+    }
 
     const res = await apiFetch(endpoint, {
       method: 'POST',
@@ -43,7 +72,7 @@ async function generateWhatsAppMessage() {
       method: 'POST',
       body: JSON.stringify({
         type: type,
-        title: type === 'reminder' ? 'Recordatorio de pago' : 'Agradecimiento por pago',
+        title: TITLES[type] || 'Mensaje',
         body: data.message,
         recipientName: clientName,
         recipientPhone: phone
@@ -59,14 +88,14 @@ async function generateWhatsAppMessage() {
   }
 }
 
-// Compartir mensaje por WhatsApp directamente desde la lista de mensajes
+// Compartir mensaje por WhatsApp directamente desde la lista (usa GET /messages/:id)
 async function shareMessageWhatsApp(messageId) {
   try {
-    const res = await apiFetch('/messages');
+    const res = await apiFetch('/messages/' + messageId);
     const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Error al cargar mensajes');
+    if (!res.ok) throw new Error(data.error || 'Error al cargar mensaje');
 
-    const msg = data.messages.find(m => m.id === messageId);
+    const msg = data.message;
     if (!msg) throw new Error('Mensaje no encontrado');
     if (!msg.recipient_phone) throw new Error('El mensaje no tiene teléfono asociado');
 
