@@ -95,3 +95,43 @@ function cleanPhone(phone) {
 function openWhatsApp(url) {
   window.open(url, '_blank', 'noopener,noreferrer');
 }
+
+// Toggle sidebar móvil (hamburguesa)
+function initSidebarToggle() {
+  const hamburger = document.getElementById('hamburgerBtn');
+  const sidebar = document.getElementById('sidebar');
+  if (!hamburger || !sidebar) return;
+
+  // Crear overlay si no existe
+  let overlay = document.getElementById('sidebarOverlay');
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.id = 'sidebarOverlay';
+    overlay.className = 'sidebar-overlay';
+    document.body.appendChild(overlay);
+  }
+
+  function toggle() {
+    const isOpen = sidebar.classList.contains('open');
+    sidebar.classList.toggle('open');
+    overlay.classList.toggle('show');
+    hamburger.classList.toggle('open');
+  }
+
+  hamburger.addEventListener('click', (e) => {
+    e.stopPropagation();
+    toggle();
+  });
+
+  overlay.addEventListener('click', toggle);
+
+  // Cerrar al hacer click en un enlace (UX móvil)
+  sidebar.querySelectorAll('.sidebar-nav a').forEach(link => {
+    link.addEventListener('click', () => {
+      if (sidebar.classList.contains('open')) toggle();
+    });
+  });
+}
+
+// Inicializar al cargar
+document.addEventListener('DOMContentLoaded', initSidebarToggle);
